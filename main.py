@@ -1,13 +1,11 @@
 import os, json
 from datetime import datetime, timezone, timedelta
-from fastapi import FastAPI, Request, HTTPException, Depends
+from fastapi import FastAPI, Request, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from supabase import create_client
 import secrets
 
 app = FastAPI()
-security = HTTPBasic()
 
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_KEY"]
@@ -21,13 +19,6 @@ app.add_middleware(
     allow_methods=["POST", "GET", "OPTIONS"],
     allow_headers=["*"],
 )
-
-def check_auth(credentials: HTTPBasicCredentials = Depends(security)):
-    ok = secrets.compare_digest(credentials.password.encode(), DASHBOARD_PASSWORD.encode())
-    if not ok:
-        raise HTTPException(status_code=401, detail="Nicht autorisiert",
-                            headers={"WWW-Authenticate": "Basic"})
-    return credentials.username
 
 @app.get("/")
 def root():
@@ -81,7 +72,9 @@ async def save_email(request: Request):
     return {"ok": True}
 
 @app.get("/dashboard/data")
-def dashboard_data(username: str = Depends(check_auth)):
+def dashboard_data(token: str = Query(default="")):
+    if not secrets.compare_digest(token.encode(), DASHBOARD_PASSWORD.encode()):
+        raise HTTPException(status_code=401, detail="Nicht autorisiert")
     now = datetime.now(timezone.utc)
     d7 = (now - timedelta(days=7)).isoformat()
     d30 = (now - timedelta(days=30)).isoformat()
