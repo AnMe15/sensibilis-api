@@ -53,14 +53,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .lerr{color:var(--c);font-size:12px;margin-top:10px;min-height:18px}
 
 #app{display:none;min-height:100vh}
-header{background:linear-gradient(135deg,var(--n) 0%,#1a3a72 100%);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(13,28,63,.25)}
-.hlogo{font-family:Georgia,serif;font-size:18px;color:#fff;display:flex;align-items:center;gap:10px}
-.hlogo em{color:var(--gl);font-style:italic}
-.hbadge{font-size:10px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);padding:3px 8px;border-radius:20px;letter-spacing:.08em}
-.hmeta{display:flex;align-items:center;gap:16px}
-.htime{font-size:11px;color:rgba(255,255,255,.5)}
-.htime span{color:rgba(255,255,255,.8)}
-.hlogout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.75);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;transition:.2s}
+header{background:linear-gradient(135deg,var(--n) 0%,#1a3a72 100%);padding:0 28px;height:68px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(13,28,63,.3)}
+.hlogo{display:flex;align-items:center;gap:12px}
+.hlogo-svg{width:36px;height:36px;flex-shrink:0}
+.hlogo-text{font-family:Georgia,serif;font-size:19px;color:#fff;letter-spacing:-.01em}
+.hlogo-text em{color:var(--gl);font-style:italic}
+.hbadge{font-size:10px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.75);padding:3px 9px;border-radius:20px;letter-spacing:.08em;margin-left:2px}
+.hmeta{display:flex;align-items:center;gap:12px}
+/* ZEITRAUM-WÄHLER */
+.period-bar{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border-radius:10px;padding:4px}
+.pbtn{background:none;border:none;color:rgba(255,255,255,.65);font-size:12px;font-weight:600;padding:5px 12px;border-radius:7px;cursor:pointer;transition:.15s;white-space:nowrap}
+.pbtn:hover{color:#fff;background:rgba(255,255,255,.12)}
+.pbtn.active{background:rgba(255,255,255,.22);color:#fff}
+.pbtn-sep{width:1px;height:16px;background:rgba(255,255,255,.2)}
+.htime{font-size:11px;color:rgba(255,255,255,.45)}
+.htime span{color:rgba(255,255,255,.7)}
+.hlogout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.7);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;transition:.2s}
 .hlogout:hover{background:rgba(255,255,255,.2);color:#fff}
 
 main{max-width:1200px;margin:0 auto;padding:40px 28px 80px}
@@ -193,8 +201,28 @@ main{max-width:1200px;margin:0 auto;padding:40px 28px 80px}
 </div>
 <div id="app">
   <header>
-    <div class="hlogo"><em>S</em>ensibilis <span class="hbadge">Analytics</span></div>
+    <div class="hlogo">
+      <svg class="hlogo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="14" fill="none" stroke="#fff" stroke-width="1.2" opacity=".6"/>
+        <circle cx="16" cy="16" r="9.5" fill="none" stroke="#B8924A" stroke-width="0.8" opacity=".9"/>
+        <circle cx="16" cy="3"  r="1.2" fill="#B8924A"/><circle cx="16" cy="29" r="1.2" fill="#B8924A"/>
+        <circle cx="3"  cy="16" r="1.2" fill="#B8924A"/><circle cx="29" cy="16" r="1.2" fill="#B8924A"/>
+        <path d="M 19 10 C 19 7 13 7 12 10 C 11 13 17 15 16.5 17" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M 17 15.5 C 18 17 21 18.5 20.5 21.5 C 20 24 14 24.5 13 22" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="hlogo-text"><em>S</em>ensibilis</span>
+      <span class="hbadge">Analytics</span>
+    </div>
     <div class="hmeta">
+      <div class="period-bar">
+        <button class="pbtn" onclick="setPeriod(7)" id="p7">7 Tage</button>
+        <div class="pbtn-sep"></div>
+        <button class="pbtn active" onclick="setPeriod(30)" id="p30">30 Tage</button>
+        <div class="pbtn-sep"></div>
+        <button class="pbtn" onclick="setPeriod(90)" id="p90">90 Tage</button>
+        <div class="pbtn-sep"></div>
+        <button class="pbtn" onclick="toggleCompare()" id="pcmp">&#8646; Vergleich</button>
+      </div>
       <div class="htime">Stand: <span id="ts"></span></div>
       <button class="hlogout" onclick="doLogout()">Abmelden</button>
     </div>
@@ -206,15 +234,29 @@ main{max-width:1200px;margin:0 auto;padding:40px 28px 80px}
 const N='#0D1C3F',G='#B8924A',C='#8C1A2A';
 let _pw='';
 const $=id=>document.getElementById(id);
+let curDays=30,curCompare=false;
 function doLogin(){const pw=$('pw').value.trim();if(!pw){showE('Bitte Passwort eingeben.');return;}_pw=pw;$('lerr').textContent='Wird geprüft…';load();}
 $('pw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 function doLogout(){_pw='';$('app').style.display='none';$('login').style.display='flex';$('pw').value='';}
 function showE(m){$('lerr').textContent=m;}
 
+function setPeriod(d){
+  curDays=d;
+  ['p7','p30','p90'].forEach(id=>$('p'+id.slice(1))&&$('p'+id.slice(1)).classList.remove('active'));
+  $('p'+d)&&$('p'+d).classList.add('active');
+  load();
+}
+function toggleCompare(){
+  curCompare=!curCompare;
+  const b=$('pcmp');
+  if(b){b.classList.toggle('active',curCompare);b.textContent=curCompare?'✓ Vergleich':'⇄ Vergleich';}
+  load();
+}
+
 async function load(){
   try{
     const [r, rs] = await Promise.all([
-      fetch('/dashboard/data?token='+encodeURIComponent(_pw)),
+      fetch('/dashboard/data?token='+encodeURIComponent(_pw)+'&days='+curDays+'&compare='+(curCompare?'true':'false')),
       fetch('/dashboard/seo?token='+encodeURIComponent(_pw))
     ]);
     if(r.status===401){showE('Falsches Passwort.');_pw='';return;}
@@ -231,23 +273,33 @@ async function load(){
   }catch(e){showE('Fehler: '+e.message);_pw='';}
 }
 
+function deltaBadge(cur,prev,label){
+  if(!curCompare||prev==null)return '';
+  if(prev===0)return cur>0?`<span class="badge-up">neu</span>`:'';
+  const pct=Math.round((cur-prev)/prev*100);
+  return pct>0?`<span class="badge-up">↑ +${pct}% ${label}</span>`:pct<0?`<span class="badge-dn">↓ ${pct}% ${label}</span>`:`<span class="badge-neu">= ${label}</span>`;
+}
 function render(d,seo){
   const el=$('content');
-  const pv7=d.sessions_7d,pv30=d.sessions_30d,em=d.email_count,k30=d.kontakt_30d||0;
-  const trend=pv30>0?Math.round(pv7/pv30*30/7*100-100):0;
-  const conv=pv30>0?(em/pv30*100).toFixed(1):0;
+  const pvMain=d.sessions_30d,em=d.email_count,k30=d.kontakt_30d||0;
+  const pv7=d.sessions_7d;
+  const trend=pvMain>0?Math.round(pv7/pvMain*30/7*100-100):0;
+  const conv=pvMain>0?(em/pvMain*100).toFixed(1):0;
   const tBadge=trend>0?`<span class="badge-up">↑ +${trend}%</span>`:trend<0?`<span class="badge-dn">↓ ${trend}%</span>`:`<span class="badge-neu">neu</span>`;
   const topPage=d.top_pages_7d[0],topClick=d.top_clicks_30d[0];
   const maxC=d.top_clicks_30d[0]?d.top_clicks_30d[0][1]:1;
   const recs=buildRecs(d,trend,topPage,topClick,conv);
+  const dBesMain=deltaBadge(pvMain,d.prev_sessions,'vs. Vorperiode');
+  const dEm=deltaBadge(em,d.prev_emails,'vs. Vorperiode');
+  const periodLabel=curDays===7?'7 Tage':curDays===90?'90 Tage':'30 Tage';
 
   el.innerHTML=`
   <div class="sec">
-    <div class="sec-title"><span class="sec-icon">📊</span> Überblick</div>
+    <div class="sec-title"><span class="sec-icon">📊</span> Überblick${curCompare?'<span style="font-size:12px;font-weight:400;color:var(--ink2);margin-left:8px">mit Vergleich zur Vorperiode</span>':''}</div>
     <div class="kpi-grid">
-      <div class="kpi k-n"><div class="kpi-icon">👁</div><div class="kpi-label">Besuche — 7 Tage</div><div class="kpi-value">${pv7}</div><div class="kpi-sub">${tBadge} ggü. 30T-Schnitt</div></div>
-      <div class="kpi k-n"><div class="kpi-icon">📅</div><div class="kpi-label">Besuche — 30 Tage</div><div class="kpi-value">${pv30}</div><div class="kpi-sub">Gesamtreichweite</div></div>
-      <div class="kpi k-g"><div class="kpi-icon">✉️</div><div class="kpi-label">E-Mail-Leads</div><div class="kpi-value">${em}</div><div class="kpi-sub">${pv30>0?`Konversion: <strong>${conv}%</strong>`:'Tracking läuft'}</div></div>
+      <div class="kpi k-n"><div class="kpi-icon">👁</div><div class="kpi-label">Besuche — ${periodLabel}</div><div class="kpi-value">${pvMain}</div><div class="kpi-sub">${dBesMain||tBadge+' ggü. Wochenschnitt'}</div></div>
+      <div class="kpi k-n"><div class="kpi-icon">📅</div><div class="kpi-label">Besuche — 7 Tage</div><div class="kpi-value">${pv7}</div><div class="kpi-sub">Aktueller Trend</div></div>
+      <div class="kpi k-g"><div class="kpi-icon">✉️</div><div class="kpi-label">E-Mail-Leads</div><div class="kpi-value">${em}</div><div class="kpi-sub">${dEm||( pvMain>0?`Konversion: <strong>${conv}%</strong>`:'Tracking läuft')}</div></div>
       <div class="kpi k-c"><div class="kpi-icon">🏆</div><div class="kpi-label">Stärkste Seite (7T)</div><div class="kpi-value" style="font-size:${topPage?'20px':'36px'};line-height:1.35">${topPage?pN(topPage[0]):'—'}</div><div class="kpi-sub">${topPage?topPage[1]+' Aufrufe':'keine Daten'}</div></div>
     </div>
   </div>
@@ -256,9 +308,9 @@ function render(d,seo){
     <div class="sec-title"><span class="sec-icon">🎯</span> Conversion-Funnel — 30 Tage</div>
     <div class="sec-sub">Alle drei Werte beziehen sich auf denselben 30-Tage-Zeitraum</div>
     <div class="funnel">
-      ${fStep('Besucher gesamt',pv30,100)}
-      ${fStep('Kontaktseite besucht',k30,pv30>0?Math.round(k30/pv30*100):0)}
-      ${fStep('E-Mail-Lead',em,pv30>0?Math.round(em/pv30*100):0)}
+      ${fStep('Besucher gesamt',pvMain,100)}
+      ${fStep('Kontaktseite besucht',k30,pvMain>0?Math.round(k30/pvMain*100):0)}
+      ${fStep('E-Mail-Lead',em,pvMain>0?Math.round(em/pvMain*100):0)}
     </div>
   </div>
 
@@ -639,12 +691,14 @@ async def save_email(request: Request):
     return {"ok": True}
 
 @app.get("/dashboard/data")
-def dashboard_data(token: str = Query(default="")):
+def dashboard_data(token: str = Query(default=""), days: int = Query(default=30), compare: bool = Query(default=False)):
     if not secrets.compare_digest(token.encode(), DASHBOARD_PASSWORD.encode()):
         raise HTTPException(status_code=401, detail="Nicht autorisiert")
-    now = datetime.now(timezone.utc)
-    d7  = (now - timedelta(days=7)).isoformat()
-    d30 = (now - timedelta(days=30)).isoformat()
+    now  = datetime.now(timezone.utc)
+    d7   = (now - timedelta(days=7)).isoformat()
+    d30  = (now - timedelta(days=days)).isoformat()
+    prev_start = (now - timedelta(days=days*2)).isoformat()
+    prev_end   = (now - timedelta(days=days)).isoformat()
 
     pv7  = sb.table("sensibilis_pageviews").select("page,session_id,device,is_new,ref_source,created_at").gte("created_at", d7).execute().data
     pv30 = sb.table("sensibilis_pageviews").select("page,session_id,device,is_new,ref_source,created_at").gte("created_at", d30).execute().data
@@ -748,6 +802,10 @@ def dashboard_data(token: str = Query(default="")):
     kontakt30 = pages30.get("kontakt", 0)
 
     return {
+        # Vergleichszeitraum
+        "prev_sessions": len(sb.table("sensibilis_pageviews").select("id").gte("created_at", prev_start).lt("created_at", prev_end).execute().data) if compare else None,
+        "prev_emails":   len(sb.table("sensibilis_emails").select("id").gte("created_at", prev_start).lt("created_at", prev_end).execute().data) if compare else None,
+        "days":                days,
         "sessions_7d":         len(pv7),
         "sessions_30d":        len(pv30),
         "kontakt_30d":         kontakt30,
