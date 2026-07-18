@@ -27,153 +27,307 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Sensibilis — Analytics Dashboard</title>
+<title>Sensibilis — Analytics</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <style>
-:root{--c:#8C1A2A;--n:#0D1C3F;--g:#B8924A;--iv:#F3EDE3;--ink:#160A0D;--ink2:#5a4850;--bdr:#ddd4c8;--surf:#fff;--page:#F3EDE3;--n-lt:#1a2d5a;--radius:10px;--shadow:0 2px 18px rgba(13,28,63,.10)}
-@media(prefers-color-scheme:dark){:root{--surf:#111827;--page:#0a0f1c;--ink:#e8dfd4;--ink2:#9ca3af;--bdr:#1e2d4a;--n:#1e3a6a;--n-lt:#2a4f8a}}
+:root{
+  --c:#8C1A2A;--n:#0D1C3F;--g:#B8924A;--gl:#D4AB68;--iv:#F3EDE3;
+  --ok:#1a6b3a;--ok-bg:#edf7f1;--warn:#8C1A2A;--warn-bg:#fdf2f2;--info:#1a3f6b;--info-bg:#eef3fb;
+  --ink:#160A0D;--ink2:#6b5860;--bdr:#e2d9d0;
+  --surf:#ffffff;--page:#f5ede3;--n-lt:#1a2d5a;
+  --radius:12px;--shadow:0 1px 12px rgba(13,28,63,.08);--shadow-lg:0 4px 32px rgba(13,28,63,.13);
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,-apple-system,sans-serif;background:var(--page);color:var(--ink);min-height:100vh}
-#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
-.login-box{background:var(--surf);border-radius:16px;padding:48px 40px;max-width:380px;width:100%;box-shadow:var(--shadow);text-align:center}
-.login-box .brand{font-family:Georgia,serif;font-size:22px;color:var(--n);margin-bottom:6px}
-.login-box .brand em{font-style:italic;color:var(--c)}
-.login-box p{font-size:13px;color:var(--ink2);margin-bottom:28px}
-.login-box input{width:100%;border:1.5px solid var(--bdr);border-radius:8px;padding:12px 14px;font-size:15px;background:var(--page);color:var(--ink);outline:none;transition:border .2s}
-.login-box input:focus{border-color:var(--g)}
-.login-box button{margin-top:14px;width:100%;background:var(--n);color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:600;cursor:pointer}
-.login-box button:hover{background:var(--n-lt)}
-.login-err{color:var(--c);font-size:12px;margin-top:10px;min-height:18px}
-#app{display:none}
-header{background:var(--n);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-header .logo{font-family:Georgia,serif;font-size:17px;color:#fff}
-.logo em{color:var(--g);font-style:italic}
-header .meta{font-size:12px;color:rgba(255,255,255,.55);display:flex;gap:16px;align-items:center}
-header .meta span{color:rgba(255,255,255,.75)}
-header button.logout{background:none;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.7);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer}
-main{max-width:1100px;margin:0 auto;padding:32px 24px}
-.section-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:36px 0 14px}
-.section-title:first-child{margin-top:0}
-.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:8px}
-.kpi{background:var(--surf);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow);border-top:3px solid transparent}
-.kpi.navy{border-top-color:var(--n)}.kpi.gold{border-top-color:var(--g)}.kpi.burg{border-top-color:var(--c)}
-.kpi .label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);margin-bottom:8px}
-.kpi .value{font-size:34px;font-weight:700;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
-.kpi .sub{font-size:12px;color:var(--ink2);margin-top:6px}
-.chart-grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}
-@media(max-width:700px){.chart-grid2{grid-template-columns:1fr}}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--page);color:var(--ink);min-height:100vh;font-size:14px}
+
+/* LOGIN */
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--n) 0%,#1a3a72 100%)}
+.lbox{background:#fff;border-radius:20px;padding:52px 44px;max-width:400px;width:90%;box-shadow:var(--shadow-lg);text-align:center}
+.lbox-brand{font-family:Georgia,serif;font-size:26px;color:var(--n);margin-bottom:4px}
+.lbox-brand em{color:var(--c);font-style:italic}
+.lbox-sub{font-size:12px;color:var(--ink2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:32px}
+.lbox input{width:100%;border:1.5px solid var(--bdr);border-radius:10px;padding:14px 16px;font-size:15px;color:var(--ink);outline:none;transition:.2s;background:var(--page)}
+.lbox input:focus{border-color:var(--g);background:#fff}
+.lbox-btn{margin-top:12px;width:100%;background:linear-gradient(135deg,var(--n),#1a3a72);color:#fff;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:.04em;transition:.2s}
+.lbox-btn:hover{opacity:.9}
+.lerr{color:var(--c);font-size:12px;margin-top:10px;min-height:18px}
+
+/* APP */
+#app{display:none;min-height:100vh}
+header{background:linear-gradient(135deg,var(--n) 0%,#1a3a72 100%);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(13,28,63,.25)}
+.hlogo{font-family:Georgia,serif;font-size:18px;color:#fff;display:flex;align-items:center;gap:10px}
+.hlogo em{color:var(--gl);font-style:italic}
+.hbadge{font-size:10px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);padding:3px 8px;border-radius:20px;letter-spacing:.08em}
+.hmeta{display:flex;align-items:center;gap:16px}
+.htime{font-size:11px;color:rgba(255,255,255,.5)}
+.htime span{color:rgba(255,255,255,.8)}
+.hlogout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.75);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;transition:.2s}
+.hlogout:hover{background:rgba(255,255,255,.2);color:#fff}
+
+main{max-width:1160px;margin:0 auto;padding:36px 28px 60px}
+
+/* SECTION */
+.sec{margin-top:36px}.sec:first-child{margin-top:0}
+.sec-title{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--bdr)}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:800px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--surf);border-radius:var(--radius);padding:24px 22px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.k-n::before{background:var(--n)}
+.kpi.k-g::before{background:var(--g)}
+.kpi.k-c::before{background:var(--c)}
+.kpi.k-ok::before{background:var(--ok)}
+.kpi-icon{font-size:22px;margin-bottom:10px;opacity:.7}
+.kpi-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);margin-bottom:6px}
+.kpi-value{font-size:40px;font-weight:800;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kpi-sub{font-size:12px;color:var(--ink2);margin-top:8px;display:flex;align-items:center;gap:4px}
+.badge-up{color:var(--ok);font-weight:700}.badge-dn{color:var(--c);font-weight:700}.badge-neu{color:var(--info);font-weight:700}
+
+/* FUNNEL */
+.funnel{background:var(--surf);border-radius:var(--radius);padding:28px 32px;box-shadow:var(--shadow);display:flex;align-items:center;gap:0}
+.f-step{flex:1;text-align:center;position:relative}
+.f-step::after{content:'→';position:absolute;right:-10px;top:50%;transform:translateY(-50%);color:var(--bdr);font-size:20px;font-weight:300}
+.f-step:last-child::after{display:none}
+.f-bar{height:6px;border-radius:3px;margin:10px auto 0;background:var(--bdr);max-width:80px}
+.f-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--n),var(--g))}
+.f-num{font-size:32px;font-weight:800;color:var(--n);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.f-label{font-size:11px;color:var(--ink2);margin-top:4px}
+.f-pct{font-size:11px;font-weight:700;color:var(--g);margin-top:2px}
+
+/* CHARTS */
+.chart-row{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+@media(max-width:800px){.chart-row{grid-template-columns:1fr}}
 .card{background:var(--surf);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
-.card h3{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px}
-.card .card-sub{font-size:11px;color:var(--ink2);margin-bottom:18px}
-.chart-wrap{position:relative;width:100%;height:220px}
-.recs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
-.rec{background:var(--surf);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);border-left:4px solid var(--g);display:flex;flex-direction:column;gap:8px}
-.rec .rec-type{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--g)}
-.rec .rec-type.warn{color:var(--c)}.rec .rec-type.ok{color:#2d7d46}
-.rec h4{font-size:14px;font-weight:600;color:var(--ink);line-height:1.3}
-.rec p{font-size:13px;color:var(--ink2);line-height:1.6}
-.rec-warn{border-left-color:var(--c)}.rec-ok{border-left-color:#2d7d46}
-.table-wrap{overflow-x:auto;border-radius:var(--radius)}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{background:var(--n);color:#fff;padding:10px 14px;text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
-td{padding:10px 14px;border-bottom:1px solid var(--bdr);color:var(--ink)}
-tr:hover td{background:rgba(184,146,74,.07)}
-.dash-footer{text-align:center;padding:32px 0 16px;font-size:11px;color:var(--ink2)}
-.loading{text-align:center;padding:80px;color:var(--ink2);font-size:14px}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.card-title{font-size:13px;font-weight:700;color:var(--ink)}
+.card-sub{font-size:11px;color:var(--ink2);margin-top:2px}
+.chart-wrap{position:relative;height:200px}
+
+/* PAGE TABLE */
+.ptable{width:100%;border-collapse:collapse}
+.ptable td{padding:9px 0;border-bottom:1px solid var(--bdr);font-size:13px}
+.ptable tr:last-child td{border-bottom:none}
+.ptable .pname{color:var(--ink);font-weight:500}
+.ptable .pcount{color:var(--ink2);text-align:right;font-variant-numeric:tabular-nums;width:48px}
+.ptable .pbar-wrap{width:120px;padding:0 12px}
+.pbar{height:5px;background:var(--bdr);border-radius:3px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--n),#2a5aaa)}
+
+/* CLICKS */
+.clist{display:flex;flex-direction:column;gap:10px}
+.citem{display:flex;align-items:center;gap:10px}
+.crank{font-size:11px;font-weight:700;color:var(--ink2);width:18px;text-align:center}
+.cname{flex:1;font-size:12px;color:var(--ink);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cbar-wrap{width:80px}
+.cbar{height:5px;background:var(--bdr);border-radius:3px;overflow:hidden}
+.cbar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--g),#e8b84b)}
+.ccount{font-size:11px;color:var(--ink2);width:30px;text-align:right;font-variant-numeric:tabular-nums}
+
+/* EMPFEHLUNGEN */
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.rec{background:var(--surf);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);display:flex;gap:14px}
+.rec-icon{font-size:20px;flex-shrink:0;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.rec.r-warn .rec-icon{background:var(--warn-bg)}
+.rec.r-ok .rec-icon{background:var(--ok-bg)}
+.rec.r-info .rec-icon{background:var(--info-bg)}
+.rec-body{}
+.rec-type{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.rec.r-warn .rec-type{color:var(--warn)}
+.rec.r-ok .rec-type{color:var(--ok)}
+.rec.r-info .rec-type{color:var(--info)}
+.rec h4{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.3}
+.rec p{font-size:12px;color:var(--ink2);line-height:1.65}
+
+/* EMAIL TABLE */
+.etable{width:100%;border-collapse:collapse;font-size:13px}
+.etable th{background:var(--n);color:#fff;padding:10px 14px;text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.etable td{padding:11px 14px;border-bottom:1px solid var(--bdr);color:var(--ink)}
+.etable tr:last-child td{border-bottom:none}
+.etable tr:hover td{background:rgba(184,146,74,.06)}
+.etable .pill{display:inline-block;background:var(--info-bg);color:var(--info);font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:48px 24px;color:var(--ink2)}
+.empty-state .e-icon{font-size:40px;margin-bottom:12px;opacity:.4}
+.empty-state p{font-size:13px;line-height:1.7}
+
+.dash-foot{text-align:center;padding:20px;font-size:11px;color:var(--ink2);opacity:.6}
+.loading{text-align:center;padding:80px;color:var(--ink2)}
 </style>
 </head>
 <body>
+
 <div id="login">
-  <div class="login-box">
-    <div class="brand"><em>S</em>ensibilis</div>
-    <p>Analytics &amp; Insights &mdash; intern</p>
-    <input type="password" id="pw" placeholder="Passwort" autocomplete="current-password">
-    <button onclick="doLogin()">Anmelden</button>
-    <div class="login-err" id="login-err"></div>
+  <div class="lbox">
+    <div class="lbox-brand"><em>S</em>ensibilis</div>
+    <div class="lbox-sub">Analytics &amp; Insights</div>
+    <input type="password" id="pw" placeholder="Passwort eingeben" autocomplete="current-password">
+    <button class="lbox-btn" onclick="doLogin()">Anmelden</button>
+    <div class="lerr" id="lerr"></div>
   </div>
 </div>
+
 <div id="app">
   <header>
-    <div class="logo"><em>S</em>ensibilis &mdash; Dashboard</div>
-    <div class="meta"><span id="last-update"></span><button class="logout" onclick="doLogout()">Abmelden</button></div>
+    <div class="hlogo"><em>S</em>ensibilis <span class="hbadge">Analytics</span></div>
+    <div class="hmeta">
+      <div class="htime">Stand: <span id="ts"></span></div>
+      <button class="hlogout" onclick="doLogout()">Abmelden</button>
+    </div>
   </header>
-  <main><div id="content"><div class="loading">Daten werden geladen&hellip;</div></div></main>
-  <div class="dash-footer">Sensibilis Analytics &mdash; nur zur internen Nutzung</div>
+  <main>
+    <div id="content"><div class="loading">Daten werden geladen&hellip;</div></div>
+  </main>
+  <div class="dash-foot">Sensibilis Analytics &mdash; nur zur internen Nutzung</div>
 </div>
+
 <script>
-const CLR={navy:'#0D1C3F',gold:'#B8924A',burg:'#8C1A2A'};
-const dark=()=>window.matchMedia('(prefers-color-scheme:dark)').matches;
-const gc=()=>dark()?'rgba(255,255,255,.07)':'rgba(0,0,0,.06)';
+const N='#0D1C3F',G='#B8924A',C='#8C1A2A';
 let _pw='';
-function doLogin(){const pw=document.getElementById('pw').value.trim();if(!pw){showErr('Bitte Passwort eingeben.');return;}_pw=pw;document.getElementById('login-err').textContent='Wird geprüft…';loadDashboard();}
-document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-function doLogout(){_pw='';document.getElementById('app').style.display='none';document.getElementById('login').style.display='flex';document.getElementById('pw').value='';}
-function showErr(m){document.getElementById('login-err').textContent=m;}
-async function loadDashboard(){
+const $=id=>document.getElementById(id);
+function doLogin(){const pw=$('pw').value.trim();if(!pw){showE('Bitte Passwort eingeben.');return;}_pw=pw;$('lerr').textContent='Wird geprüft…';load();}
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+function doLogout(){_pw='';$('app').style.display='none';$('login').style.display='flex';$('pw').value='';}
+function showE(m){$('lerr').textContent=m;}
+
+async function load(){
   try{
-    const res=await fetch('/dashboard/data?token='+encodeURIComponent(_pw));
-    if(res.status===401){showErr('Falsches Passwort.');_pw='';return;}
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    const d=await res.json();
-    d.top_pages_7d=d.top_pages_7d||[];d.top_clicks_30d=d.top_clicks_30d||[];d.daily_30d=d.daily_30d||[];
-    document.getElementById('login').style.display='none';
-    document.getElementById('app').style.display='block';
-    document.getElementById('last-update').textContent='Stand: '+new Date().toLocaleString('de-DE',{dateStyle:'short',timeStyle:'short'});
+    const r=await fetch('/dashboard/data?token='+encodeURIComponent(_pw));
+    if(r.status===401){showE('Falsches Passwort.');_pw='';return;}
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    d.top_pages_7d=d.top_pages_7d||[];d.top_clicks_30d=d.top_clicks_30d||[];d.daily_30d=d.daily_30d||[];d.emails=d.emails||[];
+    $('login').style.display='none';$('app').style.display='block';
+    $('ts').textContent=new Date().toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
     render(d);
-  }catch(e){showErr('Verbindungsfehler: '+e.message);_pw='';}
+  }catch(e){showE('Fehler: '+e.message);_pw='';}
 }
+
 function render(d){
-  const el=document.getElementById('content');
-  const trend=d.sessions_30d>0?Math.round(d.sessions_7d/d.sessions_30d*30/7*100-100):0;
-  const tTxt=(trend>=0?'+':'')+trend+'% ggü. 30T-Schnitt';
+  const el=$('content');
+  const pv7=d.sessions_7d,pv30=d.sessions_30d,em=d.email_count;
+  const trend=pv30>0?Math.round(pv7/pv30*30/7*100-100):0;
+  const conv=pv30>0?(em/pv30*100).toFixed(1):0;
+  const tBadge=trend>0?`<span class="badge-up">↑ +${trend}%</span>`:trend<0?`<span class="badge-dn">↓ ${trend}%</span>`:`<span class="badge-neu">neu</span>`;
   const topPage=d.top_pages_7d[0],topClick=d.top_clicks_30d[0];
-  const recs=buildRecs(d,trend,topPage,topClick);
+  const maxP=d.top_pages_7d[0]?d.top_pages_7d[0][1]:1;
+  const maxC=d.top_clicks_30d[0]?d.top_clicks_30d[0][1]:1;
+  const kontaktBesuche=(d.top_pages_7d.find(p=>p[0]==='kontakt')||[null,0])[1];
+  const recs=buildRecs(d,trend,topPage,topClick,conv);
+
+  el.innerHTML=`
+  <div class="sec">
+    <div class="sec-title">Überblick</div>
+    <div class="kpi-grid">
+      <div class="kpi k-n">
+        <div class="kpi-icon">👁</div>
+        <div class="kpi-label">Besuche — 7 Tage</div>
+        <div class="kpi-value">${pv7}</div>
+        <div class="kpi-sub">${tBadge} ggü. 30T-Schnitt</div>
+      </div>
+      <div class="kpi k-n">
+        <div class="kpi-icon">📅</div>
+        <div class="kpi-label">Besuche — 30 Tage</div>
+        <div class="kpi-value">${pv30}</div>
+        <div class="kpi-sub">Gesamtreichweite</div>
+      </div>
+      <div class="kpi k-g">
+        <div class="kpi-icon">✉️</div>
+        <div class="kpi-label">E-Mail-Leads</div>
+        <div class="kpi-value">${em}</div>
+        <div class="kpi-sub">${pv30>0?`Konversion: <strong>${conv}%</strong>`:'Tracking läuft'}</div>
+      </div>
+      <div class="kpi k-c">
+        <div class="kpi-icon">🏆</div>
+        <div class="kpi-label">Stärkste Seite (7T)</div>
+        <div class="kpi-value" style="font-size:${topPage?'22px':'36px'};line-height:1.3">${topPage?pN(topPage[0]):'—'}</div>
+        <div class="kpi-sub">${topPage?topPage[1]+' Aufrufe':'keine Daten'}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Conversion-Funnel — 30 Tage</div>
+    <div class="funnel">
+      ${funnelStep('Besucher gesamt',pv30,100)}
+      ${funnelStep('Kontaktseite',kontaktBesuche,pv30>0?Math.round(kontaktBesuche/pv30*100):0)}
+      ${funnelStep('E-Mail-Leads',em,pv30>0?Math.round(em/pv30*100):0)}
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Besuchsverlauf</div>
+    <div class="chart-row">
+      <div class="card">
+        <div class="card-head"><div><div class="card-title">Tägliche Aufrufe</div><div class="card-sub">Letzte 30 Tage</div></div></div>
+        <div class="chart-wrap"><canvas id="cd"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><div class="card-title">Top-Seiten</div><div class="card-sub">Letzte 7 Tage</div></div></div>
+        ${d.top_pages_7d.length>0?`<table class="ptable">${d.top_pages_7d.slice(0,7).map(p=>`<tr><td class="pname">${pN(p[0])}</td><td class="pbar-wrap"><div class="pbar"><div class="pbar-fill" style="width:${Math.round(p[1]/maxP*100)}%"></div></div></td><td class="pcount">${p[1]}</td></tr>`).join('')}</table>`:`<div class="empty-state"><div class="e-icon">📊</div><p>Noch keine Seitendaten.<br>Tracking läuft seit heute.</p></div>`}
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Button-Klicks — 30 Tage</div>
+    <div class="card">
+      ${d.top_clicks_30d.length>0?`<div class="clist">${d.top_clicks_30d.slice(0,8).map((c,i)=>`<div class="citem"><div class="crank">${i+1}</div><div class="cname">${c[0]}</div><div class="cbar-wrap"><div class="cbar"><div class="cbar-fill" style="width:${Math.round(c[1]/maxC*100)}%"></div></div></div><div class="ccount">${c[1]}</div></div>`).join('')}</div>`:`<div class="empty-state"><div class="e-icon">🖱️</div><p>Noch keine Klick-Daten.<br>Alle Buttons werden automatisch erfasst.</p></div>`}
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Handlungsempfehlungen</div>
+    <div class="rec-grid">${recs.map(recCard).join('')}</div>
+  </div>
+
+  ${em>0?`
+  <div class="sec">
+    <div class="sec-title">E-Mail-Leads (${em})</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="etable">
+        <thead><tr><th>Name</th><th>E-Mail</th><th>Quelle</th><th>Datum</th></tr></thead>
+        <tbody>${d.emails.map(eRow).join('')}</tbody>
+      </table>
+    </div>
+  </div>`:''}
+  `;
+
+  // Chart
+  const g=window.matchMedia('(prefers-color-scheme:dark)').matches?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)';
   const dL=d.daily_30d.map(r=>new Date(r[0]).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}));
   const dV=d.daily_30d.map(r=>r[1]);
-  const pL=(d.top_pages_7d||[]).slice(0,7).map(r=>pN(r[0]));
-  const pV=(d.top_pages_7d||[]).slice(0,7).map(r=>r[1]);
-  const cL=(d.top_clicks_30d||[]).slice(0,7).map(r=>r[0]);
-  const cV=(d.top_clicks_30d||[]).slice(0,7).map(r=>r[1]);
-  el.innerHTML=`
-    <div class="section-title">Überblick</div>
-    <div class="kpi-row">
-      <div class="kpi navy"><div class="label">Besuche 7 Tage</div><div class="value">${d.sessions_7d}</div><div class="sub">${tTxt}</div></div>
-      <div class="kpi navy"><div class="label">Besuche 30 Tage</div><div class="value">${d.sessions_30d}</div><div class="sub">Gesamtreichweite</div></div>
-      <div class="kpi gold"><div class="label">E-Mail-Leads</div><div class="value">${d.email_count}</div><div class="sub">in der Datenbank</div></div>
-      <div class="kpi burg"><div class="label">Stärkste Seite (7T)</div><div class="value" style="font-size:20px;line-height:1.4">${topPage?pN(topPage[0]):'—'}</div><div class="sub">${topPage?topPage[1]+' Aufrufe':'keine Daten'}</div></div>
-    </div>
-    <div class="section-title">Besuchsverlauf — letzte 30 Tage</div>
-    <div class="card"><h3>Tägliche Seitenaufrufe</h3><div class="card-sub">Gesamtvolumen pro Tag</div><div class="chart-wrap"><canvas id="cd"></canvas></div></div>
-    <div class="chart-grid2">
-      <div class="card"><h3>Top-Seiten (7 Tage)</h3><div class="card-sub">Meistbesuchte Bereiche</div><div class="chart-wrap"><canvas id="cp"></canvas></div></div>
-      <div class="card"><h3>Top-Klicks (30 Tage)</h3><div class="card-sub">Welche Buttons werden gedrückt</div><div class="chart-wrap"><canvas id="cc"></canvas></div></div>
-    </div>
-    <div class="section-title">Handlungsempfehlungen</div>
-    <div class="recs">${recs.map(recCard).join('')}</div>
-    ${d.email_count>0?`<div class="section-title">Gesammelte E-Mails (${d.email_count})</div><div class="card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>E-Mail</th><th>Quelle</th><th>Datum</th></tr></thead><tbody>${d.emails.map(eR).join('')}</tbody></table></div></div>`:''}
-  `;
-  const g=gc();
-  const opts=(iy)=>({responsive:true,maintainAspectRatio:false,indexAxis:iy?'y':undefined,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(13,28,63,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.75)',padding:10,cornerRadius:6}},scales:{x:{grid:{color:g},ticks:{color:'#888',font:{size:11}},border:{display:false}},y:{grid:{color:g},ticks:{color:'#888',font:{size:11}},border:{display:false}}}});
-  new Chart(document.getElementById('cd'),{type:'line',data:{labels:dL,datasets:[{data:dV,borderColor:CLR.navy,borderWidth:2,backgroundColor:'rgba(13,28,63,.10)',fill:true,tension:0.35,pointRadius:3,pointHoverRadius:6,pointBackgroundColor:CLR.gold}]},options:opts(false)});
-  new Chart(document.getElementById('cp'),{type:'bar',data:{labels:pL,datasets:[{data:pV,backgroundColor:pV.map((_,i)=>i===0?CLR.navy:'rgba(13,28,63,.35)'),borderRadius:4,borderSkipped:false}]},options:opts(true)});
-  new Chart(document.getElementById('cc'),{type:'bar',data:{labels:cL,datasets:[{data:cV,backgroundColor:cV.map((_,i)=>i===0?CLR.gold:'rgba(184,146,74,.4)'),borderRadius:4,borderSkipped:false}]},options:opts(true)});
+  if(dL.length){
+    new Chart($('cd'),{type:'line',data:{labels:dL,datasets:[{data:dV,borderColor:N,borderWidth:2,backgroundColor:'rgba(13,28,63,.08)',fill:true,tension:0.4,pointRadius:dV.length<15?4:0,pointHoverRadius:6,pointBackgroundColor:G,pointBorderColor:N,pointBorderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(13,28,63,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.75)',padding:10,cornerRadius:6,displayColors:false}},scales:{x:{grid:{color:g},ticks:{color:'#999',font:{size:10}},border:{display:false}},y:{grid:{color:g},ticks:{color:'#999',font:{size:10}},border:{display:false},beginAtZero:true}}}});
+  }
 }
-function buildRecs(d,trend,topPage,topClick){
-  const r=[],pv30=d.sessions_30d,em=d.email_count,cv=pv30>0?(em/pv30*100).toFixed(1):0;
-  if(em===0&&pv30>0)r.push({t:'warn',title:'Kontaktformular nicht aktiv',text:`${pv30} Besuche, aber 0 Leads. Formular noch nicht verdrahtet.`});
-  else if(cv<2&&pv30>=20)r.push({t:'warn',title:`Konversionsrate niedrig (${cv}%)`,text:`Nur ${em} von ${pv30} Besuchen = Lead. CTA-Position prüfen.`});
-  else if(em>0)r.push({t:'ok',title:`${em} Leads gesammelt (${cv}%)`,text:'Leads binnen 24h kontaktieren.'});
-  if(trend>20)r.push({t:'ok',title:`Wachstumstrend +${trend}%`,text:'Letzte 7 Tage über dem Schnitt. Aktuellen Kanal weiterverfolgen.'});
-  else if(trend<-20)r.push({t:'warn',title:`Besuchsrückgang ${trend}%`,text:'Woche unter Schnitt. Verlinkung oder noindex prüfen.'});
-  if(topPage)r.push({t:'info',title:`"${pN(topPage[0])}" stärkster Einstieg`,text:'CTA auf dieser Seite besonders stark halten.'});
-  r.push({t:'warn',title:'noindex noch aktiv',text:'Google indexiert die Seite noch nicht. Vor Go-Live entfernen.'});
-  if(topClick)r.push({t:'ok',title:`Meistgeklickt: "${topClick[0]}"`,text:`${topClick[1]} Klicks — Formulierung als Vorlage nutzen.`});
-  if(pv30<10)r.push({t:'info',title:'Noch wenig Daten',text:'Unter 10 Besuchen. In 2–3 Wochen aussagekräftig.'});
+
+function funnelStep(label,val,pct){
+  return`<div class="f-step"><div class="f-num">${val}</div><div class="f-label">${label}</div><div class="f-pct">${pct>0?pct+'%':''}</div><div class="f-bar"><div class="f-bar-fill" style="width:${pct}%"></div></div></div>`;
+}
+
+function buildRecs(d,trend,topPage,topClick,conv){
+  const r=[],pv30=d.sessions_30d,em=d.email_count;
+  if(em===0&&pv30>=5)r.push({t:'warn',icon:'⚠️',title:'Kontaktformular noch nicht aktiv',text:`${pv30} Besuche, aber kein einziger Lead. Das Formular ist noch nicht mit dem Backend verbunden — jeder Besucher geht verloren.`});
+  else if(conv<2&&pv30>=20)r.push({t:'warn',icon:'📉',title:`Konversionsrate niedrig (${conv}%)`,text:`Nur ${em} von ${pv30} Besuchen führen zu einem Lead. CTA-Sichtbarkeit und Formular-Platzierung prüfen.`});
+  else if(em>0)r.push({t:'ok',icon:'✅',title:`${em} Leads gesammelt (${conv}% Konversion)`,text:'Leads zeitnah kontaktieren — binnen 24 Stunden hat man die höchste Chance auf einen Abschluss.'});
+  if(trend>20)r.push({t:'ok',icon:'📈',title:`Wachstumstrend +${trend}%`,text:'Die letzten 7 Tage liegen deutlich über dem 30-Tage-Schnitt. Aktuellen Kanal oder Content weiterverfolgen.'});
+  else if(trend<-20)r.push({t:'warn',icon:'📉',title:`Besuchsrückgang ${trend}%`,text:'Aktuelle Woche liegt unter dem Schnitt. Verlinkung, Social Media oder noindex-Status prüfen.'});
+  if(topPage)r.push({t:'info',icon:'🏆',title:`"${pN(topPage[0])}" ist stärkster Einstieg`,text:`${topPage[1]} Aufrufe in 7 Tagen. CTA auf dieser Seite besonders stark und gut sichtbar halten.`});
+  if(topClick)r.push({t:'ok',icon:'🖱️',title:`Meistgeklickt: "${topClick[0]}"`,text:`${topClick[1]} Klicks in 30 Tagen — dieser Button funktioniert. Formulierung als Vorlage für andere CTAs nutzen.`});
+  r.push({t:'warn',icon:'🔍',title:'noindex noch aktiv',text:'Google indexiert die Seite noch nicht. Vor dem Go-Live noindex aus dem HTML-Head entfernen.'});
+  if(pv30<10)r.push({t:'info',icon:'⏳',title:'Noch wenig Daten',text:'Unter 10 Besuchen — Aussagen sind noch nicht belastbar. In 2–3 Wochen ergibt sich ein klares Bild.'});
   return r;
 }
-function recCard(r){const cls=r.t==='warn'?'rec rec-warn':r.t==='ok'?'rec rec-ok':'rec';const lb=r.t==='warn'?'Handlungsbedarf':r.t==='ok'?'Positiv':'Info';return`<div class="${cls}"><div class="rec-type ${r.t}">${lb}</div><h4>${r.title}</h4><p>${r.text}</p></div>`;}
+
+function recCard(r){
+  return`<div class="rec r-${r.t}"><div class="rec-icon">${r.icon}</div><div class="rec-body"><div class="rec-type">${r.t==='warn'?'Handlungsbedarf':r.t==='ok'?'Positiv':'Info'}</div><h4>${r.title}</h4><p>${r.text}</p></div></div>`;
+}
 function pN(id){const m={home:'Startseite',beratung:'Beratung',preise:'Preise',zukunft:'KI & Zukunft',faq:'FAQ',kontakt:'Kontakt',blog:'Blog',kipass:'KI Pass',contentplaner:'Content Planer',webcheck:'Web Check',dms:'DMS',tools:'Tools',prozesse:'Prozesse',impressum:'Impressum',datenschutz:'Datenschutz',agb:'AGB',glossar:'Glossar'};return m[id]||id;}
-function eR(r){const d=new Date(r.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'});return`<tr><td>${r.name||'—'}</td><td>${r.email}</td><td>${r.source||'—'}</td><td>${d}</td></tr>`;}
+function eRow(r){const dt=new Date(r.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'});return`<tr><td>${r.name||'—'}</td><td>${r.email}</td><td>${r.source?`<span class="pill">${r.source}</span>`:'—'}</td><td>${dt}</td></tr>`;}
 </script>
 </body>
 </html>"""
