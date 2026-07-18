@@ -34,13 +34,12 @@ DASHBOARD_HTML = """<!DOCTYPE html>
   --c:#8C1A2A;--n:#0D1C3F;--g:#B8924A;--gl:#D4AB68;--iv:#F3EDE3;
   --ok:#1a6b3a;--ok-bg:#edf7f1;--warn:#8C1A2A;--warn-bg:#fdf2f2;--info:#1a3f6b;--info-bg:#eef3fb;
   --ink:#160A0D;--ink2:#6b5860;--bdr:#e2d9d0;
-  --surf:#ffffff;--page:#f5ede3;--n-lt:#1a2d5a;
+  --surf:#ffffff;--page:#f5ede3;
   --radius:12px;--shadow:0 1px 12px rgba(13,28,63,.08);--shadow-lg:0 4px 32px rgba(13,28,63,.13);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--page);color:var(--ink);min-height:100vh;font-size:14px}
 
-/* LOGIN */
 #login{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--n) 0%,#1a3a72 100%)}
 .lbox{background:#fff;border-radius:20px;padding:52px 44px;max-width:400px;width:90%;box-shadow:var(--shadow-lg);text-align:center}
 .lbox-brand{font-family:Georgia,serif;font-size:26px;color:var(--n);margin-bottom:4px}
@@ -48,11 +47,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .lbox-sub{font-size:12px;color:var(--ink2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:32px}
 .lbox input{width:100%;border:1.5px solid var(--bdr);border-radius:10px;padding:14px 16px;font-size:15px;color:var(--ink);outline:none;transition:.2s;background:var(--page)}
 .lbox input:focus{border-color:var(--g);background:#fff}
-.lbox-btn{margin-top:12px;width:100%;background:linear-gradient(135deg,var(--n),#1a3a72);color:#fff;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:.04em;transition:.2s}
+.lbox-btn{margin-top:12px;width:100%;background:linear-gradient(135deg,var(--n),#1a3a72);color:#fff;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
 .lbox-btn:hover{opacity:.9}
 .lerr{color:var(--c);font-size:12px;margin-top:10px;min-height:18px}
 
-/* APP */
 #app{display:none;min-height:100vh}
 header{background:linear-gradient(135deg,var(--n) 0%,#1a3a72 100%);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(13,28,63,.25)}
 .hlogo{font-family:Georgia,serif;font-size:18px;color:#fff;display:flex;align-items:center;gap:10px}
@@ -64,80 +62,88 @@ header{background:linear-gradient(135deg,var(--n) 0%,#1a3a72 100%);padding:0 32p
 .hlogout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.75);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;transition:.2s}
 .hlogout:hover{background:rgba(255,255,255,.2);color:#fff}
 
-main{max-width:1160px;margin:0 auto;padding:36px 28px 60px}
+main{max-width:1200px;margin:0 auto;padding:40px 28px 80px}
 
-/* SECTION */
-.sec{margin-top:36px}.sec:first-child{margin-top:0}
-.sec-title{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.sec-title::after{content:'';flex:1;height:1px;background:var(--bdr)}
+/* SECTION TITLE — groß und sichtbar */
+.sec{margin-top:48px}.sec:first-child{margin-top:0}
+.sec-title{font-size:18px;font-weight:700;color:var(--n);margin-bottom:20px;display:flex;align-items:center;gap:12px;letter-spacing:-.01em}
+.sec-title .sec-icon{font-size:20px;opacity:.8}
+.sec-title::after{content:'';flex:1;height:1.5px;background:var(--bdr);margin-left:4px}
+.sec-sub{font-size:12px;color:var(--ink2);margin-top:-14px;margin-bottom:18px}
 
 /* KPI */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 @media(max-width:800px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
 .kpi{background:var(--surf);border-radius:var(--radius);padding:24px 22px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.kpi.k-n::before{background:var(--n)}
-.kpi.k-g::before{background:var(--g)}
-.kpi.k-c::before{background:var(--c)}
-.kpi.k-ok::before{background:var(--ok)}
+.kpi.k-n::before{background:var(--n)}.kpi.k-g::before{background:var(--g)}.kpi.k-c::before{background:var(--c)}.kpi.k-ok::before{background:var(--ok)}
 .kpi-icon{font-size:22px;margin-bottom:10px;opacity:.7}
-.kpi-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);margin-bottom:6px}
+.kpi-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin-bottom:6px}
 .kpi-value{font-size:40px;font-weight:800;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-.kpi-sub{font-size:12px;color:var(--ink2);margin-top:8px;display:flex;align-items:center;gap:4px}
+.kpi-sub{font-size:12px;color:var(--ink2);margin-top:8px}
 .badge-up{color:var(--ok);font-weight:700}.badge-dn{color:var(--c);font-weight:700}.badge-neu{color:var(--info);font-weight:700}
 
 /* FUNNEL */
-.funnel{background:var(--surf);border-radius:var(--radius);padding:28px 32px;box-shadow:var(--shadow);display:flex;align-items:center;gap:0}
+.funnel{background:var(--surf);border-radius:var(--radius);padding:32px 40px;box-shadow:var(--shadow);display:flex;align-items:center}
 .f-step{flex:1;text-align:center;position:relative}
-.f-step::after{content:'→';position:absolute;right:-10px;top:50%;transform:translateY(-50%);color:var(--bdr);font-size:20px;font-weight:300}
+.f-step::after{content:'→';position:absolute;right:-12px;top:40%;transform:translateY(-50%);color:var(--bdr);font-size:22px}
 .f-step:last-child::after{display:none}
-.f-bar{height:6px;border-radius:3px;margin:10px auto 0;background:var(--bdr);max-width:80px}
+.f-bar{height:6px;border-radius:3px;margin:12px auto 0;background:var(--bdr);max-width:80px}
 .f-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--n),var(--g))}
-.f-num{font-size:32px;font-weight:800;color:var(--n);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.f-label{font-size:11px;color:var(--ink2);margin-top:4px}
-.f-pct{font-size:11px;font-weight:700;color:var(--g);margin-top:2px}
+.f-num{font-size:36px;font-weight:800;color:var(--n);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.f-label{font-size:12px;color:var(--ink2);margin-top:6px;font-weight:500}
+.f-pct{font-size:12px;font-weight:700;color:var(--g);margin-top:2px}
 
-/* CHARTS */
+/* CARDS */
 .chart-row{display:grid;grid-template-columns:2fr 1fr;gap:16px}
-@media(max-width:800px){.chart-row{grid-template-columns:1fr}}
+.chart-row-half{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.chart-row,.chart-row-half{grid-template-columns:1fr}}
 .card{background:var(--surf);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
-.card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
-.card-title{font-size:13px;font-weight:700;color:var(--ink)}
-.card-sub{font-size:11px;color:var(--ink2);margin-top:2px}
+.card-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.card-sub{font-size:11px;color:var(--ink2);margin-bottom:18px}
 .chart-wrap{position:relative;height:200px}
+.chart-wrap.donut{height:180px}
 
-/* PAGE TABLE */
+/* SEITEN-PERFORMANCE TABELLE */
+.perf-table{width:100%;border-collapse:collapse;font-size:13px}
+.perf-table th{background:var(--n);color:#fff;padding:10px 14px;text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.perf-table th:not(:first-child){text-align:center}
+.perf-table td{padding:11px 14px;border-bottom:1px solid var(--bdr);color:var(--ink);vertical-align:middle}
+.perf-table td:not(:first-child){text-align:center;font-variant-numeric:tabular-nums;color:var(--ink2)}
+.perf-table tr:last-child td{border-bottom:none}
+.perf-table tr:hover td{background:rgba(184,146,74,.05)}
+.perf-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+.perf-gut{background:var(--ok-bg);color:var(--ok)}
+.perf-ok{background:var(--info-bg);color:var(--info)}
+.perf-schwach{background:var(--warn-bg);color:var(--warn)}
+
+/* SIMPLE LIST */
+.clist{display:flex;flex-direction:column;gap:10px}
+.citem{display:flex;align-items:center;gap:10px}
+.crank{font-size:11px;font-weight:700;color:var(--ink2);width:18px;text-align:center;flex-shrink:0}
+.cname{flex:1;font-size:13px;color:var(--ink);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cbar-wrap{width:90px;flex-shrink:0}
+.cbar{height:5px;background:var(--bdr);border-radius:3px;overflow:hidden}
+.cbar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--g),#e8b84b)}
+.ccount{font-size:11px;color:var(--ink2);width:34px;text-align:right;font-variant-numeric:tabular-nums;flex-shrink:0}
+
+/* SIMPLE PAGE LIST */
 .ptable{width:100%;border-collapse:collapse}
 .ptable td{padding:9px 0;border-bottom:1px solid var(--bdr);font-size:13px}
 .ptable tr:last-child td{border-bottom:none}
 .ptable .pname{color:var(--ink);font-weight:500}
 .ptable .pcount{color:var(--ink2);text-align:right;font-variant-numeric:tabular-nums;width:48px}
-.ptable .pbar-wrap{width:120px;padding:0 12px}
+.ptable .pbar-wrap{width:100px;padding:0 10px}
 .pbar{height:5px;background:var(--bdr);border-radius:3px;overflow:hidden}
 .pbar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--n),#2a5aaa)}
 
-/* CLICKS */
-.clist{display:flex;flex-direction:column;gap:10px}
-.citem{display:flex;align-items:center;gap:10px}
-.crank{font-size:11px;font-weight:700;color:var(--ink2);width:18px;text-align:center}
-.cname{flex:1;font-size:12px;color:var(--ink);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cbar-wrap{width:80px}
-.cbar{height:5px;background:var(--bdr);border-radius:3px;overflow:hidden}
-.cbar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--g),#e8b84b)}
-.ccount{font-size:11px;color:var(--ink2);width:30px;text-align:right;font-variant-numeric:tabular-nums}
-
 /* EMPFEHLUNGEN */
-.rec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
 .rec{background:var(--surf);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);display:flex;gap:14px}
-.rec-icon{font-size:20px;flex-shrink:0;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center}
-.rec.r-warn .rec-icon{background:var(--warn-bg)}
-.rec.r-ok .rec-icon{background:var(--ok-bg)}
-.rec.r-info .rec-icon{background:var(--info-bg)}
-.rec-body{}
+.rec-icon{font-size:20px;flex-shrink:0;width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.rec.r-warn .rec-icon{background:var(--warn-bg)}.rec.r-ok .rec-icon{background:var(--ok-bg)}.rec.r-info .rec-icon{background:var(--info-bg)}
 .rec-type{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
-.rec.r-warn .rec-type{color:var(--warn)}
-.rec.r-ok .rec-type{color:var(--ok)}
-.rec.r-info .rec-type{color:var(--info)}
+.rec.r-warn .rec-type{color:var(--warn)}.rec.r-ok .rec-type{color:var(--ok)}.rec.r-info .rec-type{color:var(--info)}
 .rec h4{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.3}
 .rec p{font-size:12px;color:var(--ink2);line-height:1.65}
 
@@ -149,19 +155,14 @@ main{max-width:1160px;margin:0 auto;padding:36px 28px 60px}
 .etable tr:hover td{background:rgba(184,146,74,.06)}
 .etable .pill{display:inline-block;background:var(--info-bg);color:var(--info);font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
 
-/* EMPTY */
 .empty-state{text-align:center;padding:40px 24px;color:var(--ink2)}
 .empty-state .e-icon{font-size:36px;margin-bottom:10px;opacity:.4}
 .empty-state p{font-size:13px;line-height:1.7}
-/* Donut-Karten etwas niedriger */
-.chart-wrap.donut{height:180px}
-
-.dash-foot{text-align:center;padding:20px;font-size:11px;color:var(--ink2);opacity:.6}
+.dash-foot{text-align:center;padding:20px;font-size:11px;color:var(--ink2);opacity:.5}
 .loading{text-align:center;padding:80px;color:var(--ink2)}
 </style>
 </head>
 <body>
-
 <div id="login">
   <div class="lbox">
     <div class="lbox-brand"><em>S</em>ensibilis</div>
@@ -171,7 +172,6 @@ main{max-width:1160px;margin:0 auto;padding:36px 28px 60px}
     <div class="lerr" id="lerr"></div>
   </div>
 </div>
-
 <div id="app">
   <header>
     <div class="hlogo"><em>S</em>ensibilis <span class="hbadge">Analytics</span></div>
@@ -180,12 +180,9 @@ main{max-width:1160px;margin:0 auto;padding:36px 28px 60px}
       <button class="hlogout" onclick="doLogout()">Abmelden</button>
     </div>
   </header>
-  <main>
-    <div id="content"><div class="loading">Daten werden geladen&hellip;</div></div>
-  </main>
+  <main><div id="content"><div class="loading">Daten werden geladen&hellip;</div></div></main>
   <div class="dash-foot">Sensibilis Analytics &mdash; nur zur internen Nutzung</div>
 </div>
-
 <script>
 const N='#0D1C3F',G='#B8924A',C='#8C1A2A';
 let _pw='';
@@ -201,11 +198,10 @@ async function load(){
     if(r.status===401){showE('Falsches Passwort.');_pw='';return;}
     if(!r.ok)throw new Error('HTTP '+r.status);
     const d=await r.json();
-    d.top_pages_7d=d.top_pages_7d||[];d.top_clicks_30d=d.top_clicks_30d||[];
-    d.daily_30d=d.daily_30d||[];d.emails=d.emails||[];
-    d.devices=d.devices||{};d.traffic_sources=d.traffic_sources||[];
-    d.avg_time_per_page=d.avg_time_per_page||[];d.avg_scroll_per_page=d.avg_scroll_per_page||[];
-    d.exit_pages=d.exit_pages||[];
+    ['top_pages_7d','top_clicks_30d','daily_30d','emails','traffic_sources',
+     'avg_time_per_page','avg_scroll_per_page','exit_pages','entry_pages','page_performance'
+    ].forEach(k=>{if(!d[k])d[k]=[];});
+    d.devices=d.devices||{};
     $('login').style.display='none';$('app').style.display='block';
     $('ts').textContent=new Date().toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
     render(d);
@@ -214,182 +210,162 @@ async function load(){
 
 function render(d){
   const el=$('content');
-  const pv7=d.sessions_7d,pv30=d.sessions_30d,em=d.email_count;
+  const pv7=d.sessions_7d,pv30=d.sessions_30d,em=d.email_count,k30=d.kontakt_30d||0;
   const trend=pv30>0?Math.round(pv7/pv30*30/7*100-100):0;
   const conv=pv30>0?(em/pv30*100).toFixed(1):0;
   const tBadge=trend>0?`<span class="badge-up">↑ +${trend}%</span>`:trend<0?`<span class="badge-dn">↓ ${trend}%</span>`:`<span class="badge-neu">neu</span>`;
   const topPage=d.top_pages_7d[0],topClick=d.top_clicks_30d[0];
-  const maxP=d.top_pages_7d[0]?d.top_pages_7d[0][1]:1;
   const maxC=d.top_clicks_30d[0]?d.top_clicks_30d[0][1]:1;
-  const kontaktBesuche=(d.top_pages_7d.find(p=>p[0]==='kontakt')||[null,0])[1];
   const recs=buildRecs(d,trend,topPage,topClick,conv);
 
   el.innerHTML=`
   <div class="sec">
-    <div class="sec-title">Überblick</div>
+    <div class="sec-title"><span class="sec-icon">📊</span> Überblick</div>
     <div class="kpi-grid">
-      <div class="kpi k-n">
-        <div class="kpi-icon">👁</div>
-        <div class="kpi-label">Besuche — 7 Tage</div>
-        <div class="kpi-value">${pv7}</div>
-        <div class="kpi-sub">${tBadge} ggü. 30T-Schnitt</div>
-      </div>
-      <div class="kpi k-n">
-        <div class="kpi-icon">📅</div>
-        <div class="kpi-label">Besuche — 30 Tage</div>
-        <div class="kpi-value">${pv30}</div>
-        <div class="kpi-sub">Gesamtreichweite</div>
-      </div>
-      <div class="kpi k-g">
-        <div class="kpi-icon">✉️</div>
-        <div class="kpi-label">E-Mail-Leads</div>
-        <div class="kpi-value">${em}</div>
-        <div class="kpi-sub">${pv30>0?`Konversion: <strong>${conv}%</strong>`:'Tracking läuft'}</div>
-      </div>
-      <div class="kpi k-c">
-        <div class="kpi-icon">🏆</div>
-        <div class="kpi-label">Stärkste Seite (7T)</div>
-        <div class="kpi-value" style="font-size:${topPage?'22px':'36px'};line-height:1.3">${topPage?pN(topPage[0]):'—'}</div>
-        <div class="kpi-sub">${topPage?topPage[1]+' Aufrufe':'keine Daten'}</div>
-      </div>
+      <div class="kpi k-n"><div class="kpi-icon">👁</div><div class="kpi-label">Besuche — 7 Tage</div><div class="kpi-value">${pv7}</div><div class="kpi-sub">${tBadge} ggü. 30T-Schnitt</div></div>
+      <div class="kpi k-n"><div class="kpi-icon">📅</div><div class="kpi-label">Besuche — 30 Tage</div><div class="kpi-value">${pv30}</div><div class="kpi-sub">Gesamtreichweite</div></div>
+      <div class="kpi k-g"><div class="kpi-icon">✉️</div><div class="kpi-label">E-Mail-Leads</div><div class="kpi-value">${em}</div><div class="kpi-sub">${pv30>0?`Konversion: <strong>${conv}%</strong>`:'Tracking läuft'}</div></div>
+      <div class="kpi k-c"><div class="kpi-icon">🏆</div><div class="kpi-label">Stärkste Seite (7T)</div><div class="kpi-value" style="font-size:${topPage?'20px':'36px'};line-height:1.35">${topPage?pN(topPage[0]):'—'}</div><div class="kpi-sub">${topPage?topPage[1]+' Aufrufe':'keine Daten'}</div></div>
     </div>
   </div>
 
   <div class="sec">
-    <div class="sec-title">Conversion-Funnel — 30 Tage</div>
+    <div class="sec-title"><span class="sec-icon">🎯</span> Conversion-Funnel — 30 Tage</div>
+    <div class="sec-sub">Alle drei Werte beziehen sich auf denselben 30-Tage-Zeitraum</div>
     <div class="funnel">
-      ${funnelStep('Besucher gesamt',pv30,100)}
-      ${funnelStep('Kontaktseite',kontaktBesuche,pv30>0?Math.round(kontaktBesuche/pv30*100):0)}
-      ${funnelStep('E-Mail-Leads',em,pv30>0?Math.round(em/pv30*100):0)}
+      ${fStep('Besucher gesamt',pv30,100)}
+      ${fStep('Kontaktseite besucht',k30,pv30>0?Math.round(k30/pv30*100):0)}
+      ${fStep('E-Mail-Lead',em,pv30>0?Math.round(em/pv30*100):0)}
     </div>
   </div>
 
   <div class="sec">
-    <div class="sec-title">Besuchsverlauf</div>
-    <div class="chart-row">
-      <div class="card">
-        <div class="card-head"><div><div class="card-title">Tägliche Aufrufe</div><div class="card-sub">Letzte 30 Tage</div></div></div>
-        <div class="chart-wrap"><canvas id="cd"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><div><div class="card-title">Top-Seiten</div><div class="card-sub">Letzte 7 Tage</div></div></div>
-        ${d.top_pages_7d.length>0?`<table class="ptable">${d.top_pages_7d.slice(0,7).map(p=>`<tr><td class="pname">${pN(p[0])}</td><td class="pbar-wrap"><div class="pbar"><div class="pbar-fill" style="width:${Math.round(p[1]/maxP*100)}%"></div></div></td><td class="pcount">${p[1]}</td></tr>`).join('')}</table>`:`<div class="empty-state"><div class="e-icon">📊</div><p>Noch keine Seitendaten.<br>Tracking läuft seit heute.</p></div>`}
-      </div>
+    <div class="sec-title"><span class="sec-icon">👥</span> Wer kommt — 30 Tage</div>
+    <div class="chart-row-half" style="margin-bottom:16px">
+      <div class="card"><div class="card-title">Geräte</div><div class="card-sub">Mobile / Tablet / Desktop</div><div class="chart-wrap donut"><canvas id="cdev"></canvas></div></div>
+      <div class="card"><div class="card-title">Neu vs. Wiederkehrend</div><div class="card-sub">Einzigartige Sessions</div><div class="chart-wrap donut"><canvas id="cnew"></canvas></div></div>
     </div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-title">Button-Klicks — 30 Tage</div>
     <div class="card">
-      ${d.top_clicks_30d.length>0?`<div class="clist">${d.top_clicks_30d.slice(0,8).map((c,i)=>`<div class="citem"><div class="crank">${i+1}</div><div class="cname">${c[0]}</div><div class="cbar-wrap"><div class="cbar"><div class="cbar-fill" style="width:${Math.round(c[1]/maxC*100)}%"></div></div></div><div class="ccount">${c[1]}</div></div>`).join('')}</div>`:`<div class="empty-state"><div class="e-icon">🖱️</div><p>Noch keine Klick-Daten.<br>Alle Buttons werden automatisch erfasst.</p></div>`}
+      <div class="card-title">Traffic-Quellen</div><div class="card-sub">Woher kommen die Besucher</div>
+      ${d.traffic_sources.length>0?`<div class="clist">${d.traffic_sources.map((s,i)=>{const tot=d.traffic_sources.reduce((a,x)=>a+x[1],0);return`<div class="citem"><div class="crank">${i+1}</div><div class="cname">${srcLabel(s[0])}</div><div class="cbar-wrap"><div class="cbar"><div class="cbar-fill" style="width:${Math.round(s[1]/tot*100)}%;background:linear-gradient(90deg,var(--n),#3a6aaa)"></div></div></div><div class="ccount">${s[1]}</div></div>`;}).join('')}</div>`:`<div class="empty-state"><div class="e-icon">📡</div><p>Noch keine Quellen-Daten.</p></div>`}
     </div>
   </div>
 
   <div class="sec">
-    <div class="sec-title">Besucher — 30 Tage</div>
-    <div class="chart-row">
+    <div class="sec-title"><span class="sec-icon">📈</span> Besuchsverlauf — 30 Tage</div>
+    <div class="card"><div class="card-title">Tägliche Seitenaufrufe</div><div class="card-sub">Gesamtvolumen pro Tag</div><div class="chart-wrap"><canvas id="cd"></canvas></div></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title"><span class="sec-icon">📄</span> Seiten-Performance — 30 Tage</div>
+    <div class="sec-sub">Welche Seiten ranken gut (viele Besuche, lange Verweildauer, hohe Scroll-Tiefe) — welche nicht</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      ${d.page_performance.length>0?`
+      <table class="perf-table">
+        <thead><tr><th>Seite</th><th>Aufrufe</th><th>Ø Zeit</th><th>Ø Scroll</th><th>Exit-Rate</th><th>Bewertung</th></tr></thead>
+        <tbody>${d.page_performance.map(p=>{
+          const score=perfScore(p);
+          return`<tr><td><strong>${pN(p.page)}</strong></td><td>${p.visits}</td><td>${p.avg_time?fmtTime(p.avg_time):'—'}</td><td>${p.avg_scroll?p.avg_scroll+'%':'—'}</td><td>${p.exit_rate?p.exit_rate+'%':'—'}</td><td><span class="perf-badge perf-${score.cls}">${score.label}</span></td></tr>`;
+        }).join('')}</tbody>
+      </table>`:`<div class="empty-state"><div class="e-icon">📄</div><p>Noch keine Seiten-Daten.</p></div>`}
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title"><span class="sec-icon">🚪</span> Einstiegs- & Exit-Seiten — 30 Tage</div>
+    <div class="chart-row-half">
       <div class="card">
-        <div class="card-head"><div><div class="card-title">Geräte</div><div class="card-sub">Mobile / Tablet / Desktop</div></div></div>
-        <div class="chart-wrap donut"><canvas id="cdev"></canvas></div>
+        <div class="card-title">Einstiegsseiten</div><div class="card-sub">Erste Seite einer Session</div>
+        ${d.entry_pages.length>0?`<table class="ptable">${d.entry_pages.map(p=>`<tr><td class="pname">${pN(p[0])}</td><td class="pbar-wrap"><div class="pbar"><div class="pbar-fill" style="width:${Math.round(p[1]/d.entry_pages[0][1]*100)}%"></div></div></td><td class="pcount">${p[1]}</td></tr>`).join('')}</table>`:`<div class="empty-state"><div class="e-icon">🚀</div><p>Noch keine Daten.</p></div>`}
       </div>
       <div class="card">
-        <div class="card-head"><div><div class="card-title">Neu vs. Wiederkehrend</div><div class="card-sub">Einzigartige Sessions</div></div></div>
-        <div class="chart-wrap donut"><canvas id="cnew"></canvas></div>
+        <div class="card-title">Exit-Seiten</div><div class="card-sub">Letzte Seite vor dem Verlassen</div>
+        ${d.exit_pages.length>0?`<table class="ptable">${d.exit_pages.map(p=>`<tr><td class="pname">${pN(p[0])}</td><td class="pbar-wrap"><div class="pbar"><div class="pbar-fill" style="width:${Math.round(p[1]/d.exit_pages[0][1]*100)}%;background:linear-gradient(90deg,var(--c),#c0392b)"></div></div></td><td class="pcount">${p[1]}</td></tr>`).join('')}</table>`:`<div class="empty-state"><div class="e-icon">🚪</div><p>Noch keine Daten.</p></div>`}
       </div>
     </div>
   </div>
 
   <div class="sec">
-    <div class="sec-title">Traffic-Quellen — 30 Tage</div>
+    <div class="sec-title"><span class="sec-icon">🖱️</span> Button-Klicks — 30 Tage</div>
     <div class="card">
-      ${d.traffic_sources.length>0?`<div class="clist">${d.traffic_sources.map((s,i)=>{const tot=d.traffic_sources.reduce((a,x)=>a+x[1],0);return`<div class="citem"><div class="crank">${i+1}</div><div class="cname">${srcLabel(s[0])}</div><div class="cbar-wrap"><div class="cbar"><div class="cbar-fill" style="width:${Math.round(s[1]/tot*100)}%;background:linear-gradient(90deg,var(--n),#2a5aaa)"></div></div></div><div class="ccount">${s[1]}</div></div>`}).join('')}</div>`:`<div class="empty-state"><div class="e-icon">📡</div><p>Noch keine Quellen-Daten.</p></div>`}
+      ${d.top_clicks_30d.length>0?`<div class="clist">${d.top_clicks_30d.slice(0,10).map((c,i)=>`<div class="citem"><div class="crank">${i+1}</div><div class="cname">${c[0]}</div><div class="cbar-wrap"><div class="cbar"><div class="cbar-fill" style="width:${Math.round(c[1]/maxC*100)}%"></div></div></div><div class="ccount">${c[1]}</div></div>`).join('')}</div>`:`<div class="empty-state"><div class="e-icon">🖱️</div><p>Noch keine Klick-Daten.<br>Alle Buttons werden automatisch erfasst.</p></div>`}
     </div>
   </div>
 
   <div class="sec">
-    <div class="sec-title">Verweildauer & Scroll-Tiefe — 30 Tage</div>
-    <div class="chart-row">
-      <div class="card">
-        <div class="card-head"><div><div class="card-title">Ø Verweildauer pro Seite</div><div class="card-sub">Sekunden</div></div></div>
-        ${d.avg_time_per_page.length>0?`<table class="ptable">${d.avg_time_per_page.map(p=>{const max=d.avg_time_per_page[0][1];return`<tr><td class="pname">${pN(p[0])}</td><td class="pbar-wrap"><div class="pbar"><div class="pbar-fill" style="width:${Math.round(p[1]/max*100)}%"></div></div></td><td class="pcount">${fmtTime(p[1])}</td></tr>`;}).join('')}</table>`:`<div class="empty-state"><div class="e-icon">⏱️</div><p>Noch keine Timing-Daten.</p></div>`}
-      </div>
-      <div class="card">
-        <div class="card-head"><div><div class="card-title">Ø Scroll-Tiefe pro Seite</div><div class="card-sub">Prozent der Seite gelesen</div></div></div>
-        ${d.avg_scroll_per_page.length>0?`<table class="ptable">${d.avg_scroll_per_page.map(p=>`<tr><td class="pname">${pN(p[0])}</td><td class="pbar-wrap"><div class="pbar"><div class="pbar-fill" style="width:${p[1]}%;background:linear-gradient(90deg,var(--g),#e8b84b)"></div></div></td><td class="pcount">${p[1]}%</td></tr>`).join('')}</table>`:`<div class="empty-state"><div class="e-icon">📜</div><p>Noch keine Scroll-Daten.</p></div>`}
-      </div>
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-title">Exit-Seiten — 30 Tage</div>
-    <div class="card">
-      ${d.exit_pages.length>0?`<div class="clist">${d.exit_pages.map((p,i)=>`<div class="citem"><div class="crank">${i+1}</div><div class="cname">${pN(p[0])}</div><div class="cbar-wrap"><div class="cbar"><div class="cbar-fill" style="width:${Math.round(p[1]/d.exit_pages[0][1]*100)}%;background:linear-gradient(90deg,var(--c),#c0392b)"></div></div></div><div class="ccount">${p[1]}</div></div>`).join('')}</div>`:`<div class="empty-state"><div class="e-icon">🚪</div><p>Noch keine Exit-Daten.</p></div>`}
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-title">Handlungsempfehlungen</div>
+    <div class="sec-title"><span class="sec-icon">⚠️</span> Handlungsempfehlungen</div>
     <div class="rec-grid">${recs.map(recCard).join('')}</div>
   </div>
 
   ${em>0?`
   <div class="sec">
-    <div class="sec-title">E-Mail-Leads (${em})</div>
+    <div class="sec-title"><span class="sec-icon">✉️</span> E-Mail-Leads (${em})</div>
     <div class="card" style="padding:0;overflow:hidden">
-      <table class="etable">
-        <thead><tr><th>Name</th><th>E-Mail</th><th>Quelle</th><th>Datum</th></tr></thead>
-        <tbody>${d.emails.map(eRow).join('')}</tbody>
-      </table>
+      <table class="etable"><thead><tr><th>Name</th><th>E-Mail</th><th>Quelle</th><th>Datum</th></tr></thead>
+      <tbody>${d.emails.map(eRow).join('')}</tbody></table>
     </div>
   </div>`:''}
   `;
 
-  // Charts
-  const g=window.matchMedia('(prefers-color-scheme:dark)').matches?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)';
+  const g='rgba(0,0,0,.05)';
+  const ttOpts={backgroundColor:'rgba(13,28,63,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.75)',padding:10,cornerRadius:6,displayColors:false};
   const dL=d.daily_30d.map(r=>new Date(r[0]).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}));
   const dV=d.daily_30d.map(r=>r[1]);
-  const lineOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(13,28,63,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.75)',padding:10,cornerRadius:6,displayColors:false}},scales:{x:{grid:{color:g},ticks:{color:'#999',font:{size:10}},border:{display:false}},y:{grid:{color:g},ticks:{color:'#999',font:{size:10}},border:{display:false},beginAtZero:true}}};
-  const donutOpts=(labels)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#6b5860',font:{size:11},padding:12}},tooltip:{backgroundColor:'rgba(13,28,63,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.75)',padding:10,cornerRadius:6}}});
   if(dL.length){
-    new Chart($('cd'),{type:'line',data:{labels:dL,datasets:[{data:dV,borderColor:N,borderWidth:2,backgroundColor:'rgba(13,28,63,.08)',fill:true,tension:0.4,pointRadius:dV.length<15?4:0,pointHoverRadius:6,pointBackgroundColor:G,pointBorderColor:N,pointBorderWidth:1.5}]},options:lineOpts});
+    new Chart($('cd'),{type:'line',data:{labels:dL,datasets:[{data:dV,borderColor:N,borderWidth:2,backgroundColor:'rgba(13,28,63,.08)',fill:true,tension:0.4,pointRadius:dV.length<15?4:0,pointHoverRadius:6,pointBackgroundColor:G,pointBorderColor:N,pointBorderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},scales:{x:{grid:{color:g},ticks:{color:'#999',font:{size:10}},border:{display:false}},y:{grid:{color:g},ticks:{color:'#999',font:{size:10}},border:{display:false},beginAtZero:true}}}});
   }
-  // Geräte-Donut
+  const doOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#6b5860',font:{size:11},padding:12}},tooltip:ttOpts}};
   const devKeys=Object.keys(d.devices);
-  if(devKeys.length){
-    const devLabels=devKeys.map(k=>k==='mobile'?'📱 Mobile':k==='tablet'?'📟 Tablet':'🖥 Desktop');
-    new Chart($('cdev'),{type:'doughnut',data:{labels:devLabels,datasets:[{data:devKeys.map(k=>d.devices[k]),backgroundColor:[N,G,C],borderWidth:0,hoverOffset:6}]},options:donutOpts()});
-  }
-  // Neu vs. Wiederkehrend
+  if(devKeys.length)new Chart($('cdev'),{type:'doughnut',data:{labels:devKeys.map(k=>k==='mobile'?'📱 Mobile':k==='tablet'?'📟 Tablet':'🖥 Desktop'),datasets:[{data:devKeys.map(k=>d.devices[k]),backgroundColor:[N,G,C],borderWidth:0,hoverOffset:6}]},options:doOpts});
   const nv=d.new_visitors||0,rv=d.returning_visitors||0;
-  if(nv+rv>0){
-    new Chart($('cnew'),{type:'doughnut',data:{labels:['Neu','Wiederkehrend'],datasets:[{data:[nv,rv],backgroundColor:[N,G],borderWidth:0,hoverOffset:6}]},options:donutOpts()});
-  }
+  if(nv+rv>0)new Chart($('cnew'),{type:'doughnut',data:{labels:['Neu','Wiederkehrend'],datasets:[{data:[nv,rv],backgroundColor:[N,G],borderWidth:0,hoverOffset:6}]},options:doOpts});
 }
 
-function funnelStep(label,val,pct){
-  return`<div class="f-step"><div class="f-num">${val}</div><div class="f-label">${label}</div><div class="f-pct">${pct>0?pct+'%':''}</div><div class="f-bar"><div class="f-bar-fill" style="width:${pct}%"></div></div></div>`;
+function fStep(label,val,pct){return`<div class="f-step"><div class="f-num">${val}</div><div class="f-label">${label}</div><div class="f-pct">${pct>0?pct+'%':''}</div><div class="f-bar"><div class="f-bar-fill" style="width:${pct}%"></div></div></div>`;}
+
+function perfScore(p){
+  let pts=0;
+  if(p.avg_time>=60)pts+=2;else if(p.avg_time>=20)pts+=1;
+  if(p.avg_scroll>=60)pts+=2;else if(p.avg_scroll>=35)pts+=1;
+  if(p.exit_rate>0&&p.exit_rate<=40)pts+=2;else if(p.exit_rate<=60)pts+=1;
+  if(pts>=5)return{cls:'gut',label:'Stark'};
+  if(pts>=3)return{cls:'ok',label:'Okay'};
+  return{cls:'schwach',label:'Optimieren'};
 }
 
 function buildRecs(d,trend,topPage,topClick,conv){
   const r=[],pv30=d.sessions_30d,em=d.email_count;
-  if(em===0&&pv30>=5)r.push({t:'warn',icon:'⚠️',title:'Kontaktformular noch nicht aktiv',text:`${pv30} Besuche, aber kein einziger Lead. Das Formular ist noch nicht mit dem Backend verbunden — jeder Besucher geht verloren.`});
-  else if(conv<2&&pv30>=20)r.push({t:'warn',icon:'📉',title:`Konversionsrate niedrig (${conv}%)`,text:`Nur ${em} von ${pv30} Besuchen führen zu einem Lead. CTA-Sichtbarkeit und Formular-Platzierung prüfen.`});
-  else if(em>0)r.push({t:'ok',icon:'✅',title:`${em} Leads gesammelt (${conv}% Konversion)`,text:'Leads zeitnah kontaktieren — binnen 24 Stunden hat man die höchste Chance auf einen Abschluss.'});
-  if(trend>20)r.push({t:'ok',icon:'📈',title:`Wachstumstrend +${trend}%`,text:'Die letzten 7 Tage liegen deutlich über dem 30-Tage-Schnitt. Aktuellen Kanal oder Content weiterverfolgen.'});
-  else if(trend<-20)r.push({t:'warn',icon:'📉',title:`Besuchsrückgang ${trend}%`,text:'Aktuelle Woche liegt unter dem Schnitt. Verlinkung, Social Media oder noindex-Status prüfen.'});
-  if(topPage)r.push({t:'info',icon:'🏆',title:`"${pN(topPage[0])}" ist stärkster Einstieg`,text:`${topPage[1]} Aufrufe in 7 Tagen. CTA auf dieser Seite besonders stark und gut sichtbar halten.`});
-  if(topClick)r.push({t:'ok',icon:'🖱️',title:`Meistgeklickt: "${topClick[0]}"`,text:`${topClick[1]} Klicks in 30 Tagen — dieser Button funktioniert. Formulierung als Vorlage für andere CTAs nutzen.`});
-  r.push({t:'warn',icon:'🔍',title:'noindex noch aktiv',text:'Google indexiert die Seite noch nicht. Vor dem Go-Live noindex aus dem HTML-Head entfernen.'});
+  // noindex — IMMER zuerst und prominent
+  r.push({t:'warn',icon:'🔍',title:'noindex aktiv — Google sieht die Seite nicht',text:'Solange noindex gesetzt ist, erscheint Sensibilis in keiner Suche. Erst kurz vor Go-Live entfernen.'});
+  // Kontaktformular
+  if(em===0&&pv30>=5)r.push({t:'warn',icon:'⚠️',title:'Kontaktformular nicht aktiv',text:`${pv30} Besuche, kein einziger Lead. Das Formular ist noch nicht ans Backend angebunden — jeder Besucher geht verloren.`});
+  else if(parseFloat(conv)<2&&pv30>=20)r.push({t:'warn',icon:'📉',title:`Konversionsrate niedrig (${conv}%)`,text:`Nur ${em} von ${pv30} Besuchen = Lead. CTA-Position, Sichtbarkeit und Formulartext prüfen.`});
+  else if(em>0)r.push({t:'ok',icon:'✅',title:`${em} Leads (${conv}% Konversion)`,text:'Leads binnen 24 Stunden kontaktieren — dann ist die Abschlusswahrscheinlichkeit am höchsten.'});
+  // Trend
+  if(trend>20)r.push({t:'ok',icon:'📈',title:`Wachstum +${trend}% diese Woche`,text:'7 Tage liegen deutlich über dem Monatsdurchschnitt. Aktuellen Kanal oder Post weiterverfolgen.'});
+  else if(trend<-20)r.push({t:'warn',icon:'📉',title:`Besucherrückgang ${trend}%`,text:'Woche liegt unter Schnitt. Verlinkungen, noindex-Status und Social-Media-Aktivität prüfen.'});
+  // Seiten-Performance-Warnungen
+  const schwach=(d.page_performance||[]).filter(p=>p.visits>=3&&perfScore(p).cls==='schwach');
+  if(schwach.length>0)r.push({t:'warn',icon:'📄',title:`${schwach.length} Seite${schwach.length>1?'n':''} mit schlechter Performance`,text:`${schwach.map(p=>pN(p.page)).join(', ')} — kurze Verweildauer oder hohe Exit-Rate. CTA-Position und Content prüfen.`});
+  // Mobile
+  const mob=d.devices['mobile']||0,tot=Object.values(d.devices).reduce((a,b)=>a+b,0);
+  if(tot>0&&mob/tot>0.6)r.push({t:'warn',icon:'📱',title:`${Math.round(mob/tot*100)}% der Besucher kommen mobil`,text:'Mehr als die Hälfte nutzt ein Smartphone. Mobile-Darstellung, CTA-Größe und Ladezeit genau prüfen.'});
+  // Bester Button
+  if(topClick)r.push({t:'ok',icon:'🖱️',title:`"${topClick[0]}" funktioniert`,text:`${topClick[1]} Klicks in 30 Tagen — dieser CTA performt. Formulierung auf andere Buttons übertragen.`});
+  // Exit-Seite mit hoher Rate
+  const topExit=d.exit_pages&&d.exit_pages[0];
+  if(topExit&&d.page_performance){const ep=d.page_performance.find(p=>p.page===topExit[0]);if(ep&&ep.exit_rate>60)r.push({t:'warn',icon:'🚪',title:`"${pN(topExit[0])}" hat ${ep.exit_rate}% Exit-Rate`,text:'Mehr als die Hälfte aller Besucher verlässt die Website auf dieser Seite. CTA oder weiterführende Links ergänzen.'});}
+  // Scroll
+  const lowScroll=(d.avg_scroll_per_page||[]).filter(p=>p[1]<35&&(d.page_performance||[]).find(x=>x.page===p[0]&&x.visits>=3));
+  if(lowScroll.length>0)r.push({t:'warn',icon:'📜',title:'Besucher scrollen nicht bis zum CTA',text:`Auf ${lowScroll.map(p=>pN(p[0])).join(', ')} wird im Schnitt weniger als 35% der Seite gelesen. CTA weiter nach oben setzen.`});
   if(pv30<10)r.push({t:'info',icon:'⏳',title:'Noch wenig Daten',text:'Unter 10 Besuchen — Aussagen sind noch nicht belastbar. In 2–3 Wochen ergibt sich ein klares Bild.'});
   return r;
 }
 
-function recCard(r){
-  return`<div class="rec r-${r.t}"><div class="rec-icon">${r.icon}</div><div class="rec-body"><div class="rec-type">${r.t==='warn'?'Handlungsbedarf':r.t==='ok'?'Positiv':'Info'}</div><h4>${r.title}</h4><p>${r.text}</p></div></div>`;
-}
-function pN(id){const m={home:'Startseite',beratung:'Beratung',preise:'Preise',zukunft:'KI & Zukunft',faq:'FAQ',kontakt:'Kontakt',blog:'Blog',kipass:'KI Pass',contentplaner:'Content Planer',webcheck:'Web Check',dms:'DMS',tools:'Tools',prozesse:'Prozesse',impressum:'Impressum',datenschutz:'Datenschutz',agb:'AGB',glossar:'Glossar'};return m[id]||id;}
+function recCard(r){return`<div class="rec r-${r.t}"><div class="rec-icon">${r.icon}</div><div class="rec-body"><div class="rec-type">${r.t==='warn'?'Handlungsbedarf':r.t==='ok'?'Positiv':'Info'}</div><h4>${r.title}</h4><p>${r.text}</p></div></div>`;}
+function pN(id){const m={home:'Startseite',beratung:'Beratung',preise:'Preise',zukunft:'KI & Zukunft',faq:'FAQ',kontakt:'Kontakt',blog:'Blog',kipass:'KI Pass',contentplaner:'Content Planer',webcheck:'Web Check',dms:'DMS',tools:'Tools',prozesse:'Prozesse',impressum:'Impressum',datenschutz:'Datenschutz',agb:'AGB',glossar:'Glossar',checkliste:'Schnellcheck'};return m[id]||id;}
 function srcLabel(s){const m={direkt:'Direkt / Lesezeichen',google:'Google',social:'Social Media',email:'E-Mail',referral:'Andere Website'};return m[s]||s;}
-function fmtTime(s){if(s<60)return s+'s';return Math.floor(s/60)+'m '+( s%60)+'s';}
+function fmtTime(s){if(!s)return'—';if(s<60)return s+'s';return Math.floor(s/60)+'m '+(s%60)+'s';}
 function eRow(r){const dt=new Date(r.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'});return`<tr><td>${r.name||'—'}</td><td>${r.email}</td><td>${r.source?`<span class="pill">${r.source}</span>`:'—'}</td><td>${dt}</td></tr>`;}
 </script>
 </body>
@@ -486,76 +462,109 @@ def dashboard_data(token: str = Query(default="")):
         tag = r["created_at"][:10]
         tage[tag] = tage.get(tag, 0) + 1
 
+    # Einstiegsseiten (erste Seite pro Session, 30T)
+    session_first: dict = {}
+    for r in pv30:
+        sid = r.get("session_id") or ""
+        ts  = r.get("created_at", "")
+        pg  = r.get("page", "")
+        if sid and pg:
+            if sid not in session_first or ts < session_first[sid][0]:
+                session_first[sid] = (ts, pg)
+    entry_pages: dict = {}
+    for _, (_, pg) in session_first.items():
+        entry_pages[pg] = entry_pages.get(pg, 0) + 1
+
     # Klicks
     clicks = {}
     for r in cl30:
         clicks[r["label"]] = clicks.get(r["label"], 0) + 1
 
-    # Geräte (30 Tage)
-    devices = {}
+    # Geräte (30T, pro Session)
+    devices: dict = {}
+    seen_dev: set = set()
     for r in pv30:
+        sid = r.get("session_id") or ""
+        if sid in seen_dev:
+            continue
+        seen_dev.add(sid)
         dv = r.get("device") or "unbekannt"
         devices[dv] = devices.get(dv, 0) + 1
 
-    # Neu vs. wiederkehrend (30 Tage, pro Session)
-    seen = set()
+    # Neu vs. wiederkehrend (30T, pro Session)
+    seen_nv: set = set()
     new_count = returning_count = 0
     for r in pv30:
         sid = r.get("session_id") or ""
-        if sid in seen:
+        if sid in seen_nv:
             continue
-        seen.add(sid)
+        seen_nv.add(sid)
         if r.get("is_new"):
             new_count += 1
         else:
             returning_count += 1
 
-    # Traffic-Quellen (30 Tage, pro Session)
-    seen2 = set()
-    sources = {}
+    # Traffic-Quellen (30T, pro Session)
+    seen_src: set = set()
+    sources: dict = {}
     for r in pv30:
         sid = r.get("session_id") or r.get("created_at", "")
-        if sid in seen2:
+        if sid in seen_src:
             continue
-        seen2.add(sid)
+        seen_src.add(sid)
         src = r.get("ref_source") or "direkt"
         sources[src] = sources.get(src, 0) + 1
 
-    # Verweildauer + Scroll-Tiefe pro Seite (Durchschnitt, 30 Tage)
+    # Timing pro Seite
     page_times: dict = {}
-    page_scroll: dict = {}
+    page_scroll_raw: dict = {}
     exit_pages: dict = {}
     for r in tm30:
         pg = r.get("page", "")
         t  = r.get("time_on_page") or 0
         sc = r.get("scroll_depth") or 0
-        if pg:
-            if pg not in page_times:
-                page_times[pg] = []
-            page_times[pg].append(t)
-            if pg not in page_scroll:
-                page_scroll[pg] = []
-            page_scroll[pg].append(sc)
-            if r.get("is_exit"):
-                exit_pages[pg] = exit_pages.get(pg, 0) + 1
+        if not pg:
+            continue
+        page_times.setdefault(pg, []).append(t)
+        page_scroll_raw.setdefault(pg, []).append(sc)
+        if r.get("is_exit"):
+            exit_pages[pg] = exit_pages.get(pg, 0) + 1
 
-    avg_time  = {pg: round(sum(v)/len(v)) for pg, v in page_times.items()}
-    avg_scroll = {pg: round(sum(v)/len(v)) for pg, v in page_scroll.items()}
+    avg_time   = {pg: round(sum(v)/len(v)) for pg, v in page_times.items()}
+    avg_scroll = {pg: round(sum(v)/len(v)) for pg, v in page_scroll_raw.items()}
+
+    # Seiten-Performance (kombiniert: Aufrufe + Zeit + Scroll + Exit-Rate)
+    all_pages = set(pages30.keys()) | set(avg_time.keys())
+    page_perf = []
+    for pg in all_pages:
+        visits = pages30.get(pg, 0)
+        exits  = exit_pages.get(pg, 0)
+        t      = avg_time.get(pg, 0)
+        sc     = avg_scroll.get(pg, 0)
+        exit_rate = round(exits / visits * 100) if visits > 0 else 0
+        page_perf.append({"page": pg, "visits": visits, "avg_time": t, "avg_scroll": sc, "exit_rate": exit_rate})
+    page_perf.sort(key=lambda x: x["visits"], reverse=True)
+
+    # Kontaktseite 30T für Funnel
+    kontakt30 = pages30.get("kontakt", 0)
 
     return {
-        "sessions_7d":      len(pv7),
-        "sessions_30d":     len(pv30),
-        "top_pages_7d":     sorted(pages7.items(),  key=lambda x: x[1], reverse=True)[:10],
-        "top_pages_30d":    sorted(pages30.items(), key=lambda x: x[1], reverse=True)[:10],
-        "top_clicks_30d":   sorted(clicks.items(),  key=lambda x: x[1], reverse=True)[:10],
-        "daily_30d":        sorted(tage.items()),
-        "devices":          devices,
-        "new_visitors":     new_count,
-        "returning_visitors": returning_count,
-        "traffic_sources":  sorted(sources.items(), key=lambda x: x[1], reverse=True),
+        "sessions_7d":         len(pv7),
+        "sessions_30d":        len(pv30),
+        "kontakt_30d":         kontakt30,
+        "top_pages_7d":        sorted(pages7.items(),  key=lambda x: x[1], reverse=True)[:10],
+        "top_pages_30d":       sorted(pages30.items(), key=lambda x: x[1], reverse=True)[:10],
+        "top_clicks_30d":      sorted(clicks.items(),  key=lambda x: x[1], reverse=True)[:10],
+        "daily_30d":           sorted(tage.items()),
+        "devices":             devices,
+        "new_visitors":        new_count,
+        "returning_visitors":  returning_count,
+        "traffic_sources":     sorted(sources.items(), key=lambda x: x[1], reverse=True),
+        "entry_pages":         sorted(entry_pages.items(), key=lambda x: x[1], reverse=True)[:8],
+        "page_performance":    page_perf[:12],
         "avg_time_per_page":   sorted(avg_time.items(),   key=lambda x: x[1], reverse=True)[:8],
         "avg_scroll_per_page": sorted(avg_scroll.items(), key=lambda x: x[1], reverse=True)[:8],
-        "exit_pages":       sorted(exit_pages.items(), key=lambda x: x[1], reverse=True)[:8],
-        "emails":           emails,
-        "email_count":      len(emails),
+        "exit_pages":          sorted(exit_pages.items(), key=lambda x: x[1], reverse=True)[:8],
+        "emails":              emails,
+        "email_count":         len(emails),
     }
