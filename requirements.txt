@@ -2,3 +2,5 @@ fastapi
 uvicorn
 supabase
 python-multipart
+httpx
+beautifulsoup4

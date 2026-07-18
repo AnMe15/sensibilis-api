@@ -1,10 +1,11 @@
-import os, json
+import os, json, re
 from datetime import datetime, timezone, timedelta
 from fastapi import FastAPI, Request, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from supabase import create_client
-import secrets
+import secrets, httpx
+from bs4 import BeautifulSoup
 
 app = FastAPI()
 
@@ -158,6 +159,24 @@ main{max-width:1200px;margin:0 auto;padding:40px 28px 80px}
 .empty-state{text-align:center;padding:40px 24px;color:var(--ink2)}
 .empty-state .e-icon{font-size:36px;margin-bottom:10px;opacity:.4}
 .empty-state p{font-size:13px;line-height:1.7}
+
+/* SEO/GEO */
+.seo-score-bar{background:var(--surf);border-radius:var(--radius);padding:24px 28px;box-shadow:var(--shadow);display:flex;align-items:center;gap:28px;margin-bottom:16px}
+.seo-score-ring{position:relative;width:80px;height:80px;flex-shrink:0}
+.seo-score-ring svg{transform:rotate(-90deg)}
+.seo-score-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--n)}
+.seo-score-info h3{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.seo-score-info p{font-size:12px;color:var(--ink2);line-height:1.6}
+.seo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.seo-item{background:var(--surf);border-radius:10px;padding:16px 18px;box-shadow:var(--shadow);display:flex;gap:12px;align-items:flex-start}
+.seo-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.seo-dot.ok{background:var(--ok)}.seo-dot.warn{background:var(--g)}.seo-dot.error{background:var(--c)}.seo-dot.info{background:var(--info)}
+.seo-body .seo-label{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.seo-body .seo-cat{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);margin-bottom:4px}
+.seo-body .seo-detail{font-size:12px;color:var(--ink2);line-height:1.5}
+.seo-body .seo-tip{font-size:11px;color:var(--c);margin-top:5px;font-style:italic}
+.seo-sep{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--bdr)}
+
 .dash-foot{text-align:center;padding:20px;font-size:11px;color:var(--ink2);opacity:.5}
 .loading{text-align:center;padding:80px;color:var(--ink2)}
 </style>
@@ -194,21 +213,25 @@ function showE(m){$('lerr').textContent=m;}
 
 async function load(){
   try{
-    const r=await fetch('/dashboard/data?token='+encodeURIComponent(_pw));
+    const [r, rs] = await Promise.all([
+      fetch('/dashboard/data?token='+encodeURIComponent(_pw)),
+      fetch('/dashboard/seo?token='+encodeURIComponent(_pw))
+    ]);
     if(r.status===401){showE('Falsches Passwort.');_pw='';return;}
     if(!r.ok)throw new Error('HTTP '+r.status);
     const d=await r.json();
+    const seo=rs.ok?await rs.json():{checks:[],score:null};
     ['top_pages_7d','top_clicks_30d','daily_30d','emails','traffic_sources',
      'avg_time_per_page','avg_scroll_per_page','exit_pages','entry_pages','page_performance'
     ].forEach(k=>{if(!d[k])d[k]=[];});
     d.devices=d.devices||{};
     $('login').style.display='none';$('app').style.display='block';
     $('ts').textContent=new Date().toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-    render(d);
+    render(d,seo);
   }catch(e){showE('Fehler: '+e.message);_pw='';}
 }
 
-function render(d){
+function render(d,seo){
   const el=$('content');
   const pv7=d.sessions_7d,pv30=d.sessions_30d,em=d.email_count,k30=d.kontakt_30d||0;
   const trend=pv30>0?Math.round(pv7/pv30*30/7*100-100):0;
@@ -297,6 +320,12 @@ function render(d){
     <div class="rec-grid">${recs.map(recCard).join('')}</div>
   </div>
 
+  <div class="sec">
+    <div class="sec-title"><span class="sec-icon">🔍</span> SEO & GEO — Live-Check der Website</div>
+    <div class="sec-sub">Wird bei jedem Dashboard-Aufruf automatisch gegen die Live-Seite geprüft</div>
+    ${seoSection(seo)}
+  </div>
+
   ${em>0?`
   <div class="sec">
     <div class="sec-title"><span class="sec-icon">✉️</span> E-Mail-Leads (${em})</div>
@@ -362,6 +391,23 @@ function buildRecs(d,trend,topPage,topClick,conv){
   return r;
 }
 
+function seoSection(seo){
+  if(!seo||!seo.checks||seo.checks.length===0)return`<div class="empty-state"><div class="e-icon">🔍</div><p>SEO-Check konnte nicht geladen werden.</p></div>`;
+  const sc=seo.score??0;
+  const clr=sc>=75?'#1a6b3a':sc>=50?'#B8924A':'#8C1A2A';
+  const r=36,circ=2*Math.PI*r,dash=circ*(sc/100),gap=circ-dash;
+  const ring=`<svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="${r}" fill="none" stroke="#e2d9d0" stroke-width="7"/><circle cx="40" cy="40" r="${r}" fill="none" stroke="${clr}" stroke-width="7" stroke-dasharray="${dash.toFixed(1)} ${gap.toFixed(1)}" stroke-linecap="round"/></svg>`;
+  const lbl=sc>=75?'Gut aufgestellt':sc>=50?'Verbesserungsbedarf':'Dringend optimieren';
+  const errs=seo.checks.filter(c=>c.status==='error').length;
+  const warns=seo.checks.filter(c=>c.status==='warn').length;
+  const oks=seo.checks.filter(c=>c.status==='ok').length;
+  const scoreBar=`<div class="seo-score-bar"><div class="seo-score-ring">${ring}<div class="seo-score-num">${sc}%</div></div><div class="seo-score-info"><h3>${lbl}</h3><p>${oks} Punkte gut &nbsp;·&nbsp; ${warns} Warnungen &nbsp;·&nbsp; ${errs} Fehler<br>Geprüft: ${seo.checked_at?new Date(seo.checked_at).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):''}</p></div></div>`;
+  const SEO_KEYS=['title','desc','canonical','noindex','h1','alt','og'];
+  const GEO_KEYS=['jsonld','robots','llms','content'];
+  const renderItems=(keys)=>seo.checks.filter(c=>keys.includes(c.key)).map(c=>`<div class="seo-item"><div class="seo-dot ${c.status}"></div><div class="seo-body"><div class="seo-label">${c.label}</div><div class="seo-detail">${c.detail}</div>${c.tip?`<div class="seo-tip">→ ${c.tip}</div>`:''}</div></div>`).join('');
+  return`${scoreBar}<div class="seo-sep">SEO — Suchmaschinen</div><div class="seo-grid">${renderItems(SEO_KEYS)}</div><div class="seo-sep">GEO — KI-Sichtbarkeit (Generative Engine Optimization)</div><div class="seo-grid">${renderItems(GEO_KEYS)}</div>`;
+}
+
 function recCard(r){return`<div class="rec r-${r.t}"><div class="rec-icon">${r.icon}</div><div class="rec-body"><div class="rec-type">${r.t==='warn'?'Handlungsbedarf':r.t==='ok'?'Positiv':'Info'}</div><h4>${r.title}</h4><p>${r.text}</p></div></div>`;}
 function pN(id){const m={home:'Startseite',beratung:'Beratung',preise:'Preise',zukunft:'KI & Zukunft',faq:'FAQ',kontakt:'Kontakt',blog:'Blog',kipass:'KI Pass',contentplaner:'Content Planer',webcheck:'Web Check',dms:'DMS',tools:'Tools',prozesse:'Prozesse',impressum:'Impressum',datenschutz:'Datenschutz',agb:'AGB',glossar:'Glossar',checkliste:'Schnellcheck'};return m[id]||id;}
 function srcLabel(s){const m={direkt:'Direkt / Lesezeichen',google:'Google',social:'Social Media',email:'E-Mail',referral:'Andere Website'};return m[s]||s;}
@@ -370,6 +416,159 @@ function eRow(r){const dt=new Date(r.created_at).toLocaleDateString('de-DE',{day
 </script>
 </body>
 </html>"""
+
+SITE_URL = "https://anme15.github.io/Sensibilis-Ki/"
+ROBOTS_URL = "https://anme15.github.io/Sensibilis-Ki/robots.txt"
+LLMS_URL   = "https://anme15.github.io/Sensibilis-Ki/llms.txt"
+
+AI_BOTS = ["GPTBot","ClaudeBot","PerplexityBot","anthropic-ai","GoogleBot","Googlebot-Extended","cohere-ai","YouBot","BingBot"]
+
+@app.get("/dashboard/seo")
+async def dashboard_seo(token: str = Query(default="")):
+    if not secrets.compare_digest(token.encode(), DASHBOARD_PASSWORD.encode()):
+        raise HTTPException(status_code=401, detail="Nicht autorisiert")
+
+    checks = []
+
+    def chk(key, label, status, detail, tip=""):
+        checks.append({"key":key,"label":label,"status":status,"detail":detail,"tip":tip})
+
+    try:
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+            # ── Hauptseite holen ──────────────────────────────────────────
+            try:
+                r = await client.get(SITE_URL)
+                html = r.text
+                soup = BeautifulSoup(html, "html.parser")
+            except Exception as e:
+                return {"error": f"Seite nicht erreichbar: {e}", "checks": []}
+
+            # SEO: Title
+            title = soup.find("title")
+            if title and title.text.strip():
+                chk("title","Title-Tag","ok",f'"{title.text.strip()[:60]}"')
+            else:
+                chk("title","Title-Tag","error","Kein Title-Tag gefunden","<title>Sensibilis – KI-Beratung für kleine Betriebe</title> im <head> ergänzen")
+
+            # SEO: Meta Description
+            desc = soup.find("meta", attrs={"name":"description"})
+            if desc and desc.get("content","").strip():
+                d = desc["content"].strip()
+                l = len(d)
+                if l < 50:
+                    chk("desc","Meta-Description","warn",f"Zu kurz ({l} Zeichen)","Mindestens 120–155 Zeichen empfohlen")
+                elif l > 160:
+                    chk("desc","Meta-Description","warn",f"Zu lang ({l} Zeichen)","Google kürzt ab 155–160 Zeichen")
+                else:
+                    chk("desc","Meta-Description","ok",f"{l} Zeichen — passt")
+            else:
+                chk("desc","Meta-Description","error","Fehlt komplett","<meta name=\"description\" content=\"...\"> im <head> ergänzen")
+
+            # SEO: Canonical
+            canon = soup.find("link", attrs={"rel":"canonical"})
+            if canon and canon.get("href","").strip():
+                chk("canonical","Canonical-URL","ok",canon["href"].strip())
+            else:
+                chk("canonical","Canonical-URL","warn","Kein Canonical-Tag","<link rel=\"canonical\" href=\"https://anme15.github.io/Sensibilis-Ki/\"> ergänzen")
+
+            # SEO: noindex
+            robots_meta = soup.find("meta", attrs={"name": re.compile("robots", re.I)})
+            noindex = robots_meta and "noindex" in robots_meta.get("content","").lower()
+            if noindex:
+                chk("noindex","noindex-Status","warn","Aktiv — Google und KI-Crawler indexieren die Seite nicht","Vor Go-Live noindex entfernen")
+            else:
+                chk("noindex","noindex-Status","ok","Nicht gesetzt — Seite ist indexierbar")
+
+            # SEO: H1
+            h1s = soup.find_all("h1")
+            if len(h1s) == 1:
+                chk("h1","H1-Überschrift","ok",f'"{h1s[0].text.strip()[:60]}"')
+            elif len(h1s) == 0:
+                chk("h1","H1-Überschrift","error","Keine H1 gefunden","Genau eine H1 pro Seite — die wichtigste Aussage")
+            else:
+                chk("h1","H1-Überschrift","warn",f"{len(h1s)} H1-Tags gefunden","Nur eine H1 pro Seite empfohlen")
+
+            # SEO: Alt-Texte
+            imgs = soup.find_all("img")
+            no_alt = [i.get("src","")[-30:] for i in imgs if not i.get("alt","").strip()]
+            if not imgs:
+                chk("alt","Alt-Texte","info","Keine Bilder gefunden")
+            elif no_alt:
+                chk("alt","Alt-Texte","warn",f"{len(no_alt)} von {len(imgs)} Bildern ohne Alt-Text",f"Betroffen: {', '.join(no_alt[:3])}{'...' if len(no_alt)>3 else ''}")
+            else:
+                chk("alt","Alt-Texte","ok",f"Alle {len(imgs)} Bilder haben Alt-Texte")
+
+            # SEO: Open Graph
+            og_title = soup.find("meta", attrs={"property":"og:title"})
+            og_desc  = soup.find("meta", attrs={"property":"og:description"})
+            if og_title and og_desc:
+                chk("og","Open Graph Tags","ok","og:title und og:description vorhanden")
+            elif og_title or og_desc:
+                chk("og","Open Graph Tags","warn","Nur teilweise vorhanden","og:title, og:description, og:image und og:url ergänzen")
+            else:
+                chk("og","Open Graph Tags","error","Fehlen komplett","Für Social-Media-Vorschauen und KI-Suchen wichtig")
+
+            # GEO: JSON-LD
+            jsonld = soup.find("script", attrs={"type":"application/ld+json"})
+            if jsonld and jsonld.string and jsonld.string.strip():
+                try:
+                    data = json.loads(jsonld.string)
+                    typ = data.get("@type","unbekannt")
+                    chk("jsonld","JSON-LD Strukturdaten","ok",f"Vorhanden — Typ: {typ}")
+                except Exception:
+                    chk("jsonld","JSON-LD Strukturdaten","warn","Vorhanden aber ungültiges JSON","JSON-LD auf Syntaxfehler prüfen")
+            else:
+                chk("jsonld","JSON-LD Strukturdaten","error","Fehlt","KI-Systeme lesen JSON-LD als erstes. Schema.org/LocalBusiness oder Person ergänzen")
+
+            # GEO: robots.txt + KI-Bots
+            try:
+                rob = await client.get(ROBOTS_URL)
+                rob_text = rob.text if rob.status_code == 200 else ""
+            except Exception:
+                rob_text = ""
+
+            if not rob_text:
+                chk("robots","robots.txt","warn","Nicht gefunden","robots.txt anlegen und KI-Bots explizit erlauben")
+            else:
+                blocked = [b for b in AI_BOTS if f"User-agent: {b}" in rob_text and "Disallow: /" in rob_text]
+                allowed = [b for b in AI_BOTS if f"User-agent: {b}" in rob_text and "Allow: /" in rob_text]
+                if blocked:
+                    chk("robots","robots.txt — KI-Bots","warn",f"Gesperrt: {', '.join(blocked)}","Gesperrte KI-Bots können Inhalte nicht lesen und nicht in Antworten einbeziehen")
+                elif "User-agent: *" in rob_text and "Disallow:" in rob_text:
+                    chk("robots","robots.txt — KI-Bots","warn","Wildcard-Sperre aktiv — könnte KI-Bots betreffen","Prüfen ob KI-Bots explizit erlaubt sind")
+                else:
+                    chk("robots","robots.txt — KI-Bots","ok","Keine KI-Bot-Sperren gefunden")
+
+            # GEO: llms.txt
+            try:
+                llms = await client.get(LLMS_URL)
+                if llms.status_code == 200 and llms.text.strip():
+                    chk("llms","llms.txt","ok","Vorhanden — KI-Systeme können Seitenstruktur direkt lesen")
+                else:
+                    chk("llms","llms.txt","warn","Nicht gefunden","Neuer Standard: llms.txt beschreibt der KI deine Seite in Klartext. Erhöht Sichtbarkeit in ChatGPT, Perplexity etc.")
+            except Exception:
+                chk("llms","llms.txt","warn","Nicht erreichbar","llms.txt anlegen")
+
+            # GEO: Textdichte (grober Check)
+            body_text = soup.get_text(separator=" ", strip=True)
+            word_count = len(body_text.split())
+            if word_count < 200:
+                chk("content","Textinhalt","warn",f"Nur ~{word_count} Wörter sichtbar","KI-Systeme bevorzugen Seiten mit substanziellem Text. Mehr Erklärtext ergänzen.")
+            elif word_count < 500:
+                chk("content","Textinhalt","info",f"~{word_count} Wörter — ausreichend, aber mehr wäre besser")
+            else:
+                chk("content","Textinhalt","ok",f"~{word_count} Wörter — gute Basis für KI-Indexierung")
+
+    except Exception as e:
+        return {"error": str(e), "checks": checks}
+
+    score_map = {"ok":2,"info":1,"warn":0,"error":-1}
+    total = sum(score_map.get(c["status"],0) for c in checks)
+    max_score = len(checks) * 2
+    pct = round(total / max_score * 100) if max_score else 0
+
+    return {"checks": checks, "score": pct, "total": total, "checked_at": datetime.now(timezone.utc).isoformat()}
+
 
 @app.get("/")
 def root():
