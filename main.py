@@ -565,7 +565,11 @@ async def dashboard_seo(token: str = Query(default="")):
             if jsonld and jsonld.string and jsonld.string.strip():
                 try:
                     data = json.loads(jsonld.string)
-                    typ = data.get("@type","unbekannt")
+                    if "@graph" in data:
+                        types = [n.get("@type","?") for n in data["@graph"] if isinstance(n,dict)]
+                        typ = ", ".join(types) if types else "unbekannt"
+                    else:
+                        typ = data.get("@type","unbekannt")
                     chk("jsonld","JSON-LD Strukturdaten","ok",f"Vorhanden — Typ: {typ}")
                 except Exception:
                     chk("jsonld","JSON-LD Strukturdaten","warn","Vorhanden aber ungültiges JSON","JSON-LD auf Syntaxfehler prüfen")
