@@ -378,6 +378,18 @@ function render(d,seo){
     ${seoSection(seo)}
   </div>
 
+  <div class="sec">
+    <div class="sec-title"><span class="sec-icon">⚡</span> PageSpeed Insights</div>
+    <div class="sec-sub">Letzter Test manuell durchführen — Ergebnis öffnet direkt im Browser</div>
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;">Google PageSpeed — Sensibilis Website</div>
+        <div style="font-size:12px;color:var(--ink2);line-height:1.6;">Testet Ladezeit, Barrierefreiheit, Best Practices und SEO.<br>Mobil &amp; Desktop in einem Bericht.</div>
+      </div>
+      <a href="https://pagespeed.web.dev/analysis?url=https%3A%2F%2Fanme15.github.io%2FSensibilis-Ki%2F" target="_blank" rel="noopener" style="display:inline-block;background:linear-gradient(135deg,var(--n),#1a3a72);color:#fff;text-decoration:none;border-radius:10px;padding:12px 22px;font-size:13px;font-weight:600;white-space:nowrap;flex-shrink:0;">Test jetzt starten &#x2192;</a>
+    </div>
+  </div>
+
   ${em>0?`
   <div class="sec">
     <div class="sec-title"><span class="sec-icon">✉️</span> E-Mail-Leads (${em})</div>
