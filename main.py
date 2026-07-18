@@ -150,9 +150,11 @@ main{max-width:1160px;margin:0 auto;padding:36px 28px 60px}
 .etable .pill{display:inline-block;background:var(--info-bg);color:var(--info);font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
 
 /* EMPTY */
-.empty-state{text-align:center;padding:48px 24px;color:var(--ink2)}
-.empty-state .e-icon{font-size:40px;margin-bottom:12px;opacity:.4}
+.empty-state{text-align:center;padding:40px 24px;color:var(--ink2)}
+.empty-state .e-icon{font-size:36px;margin-bottom:10px;opacity:.4}
 .empty-state p{font-size:13px;line-height:1.7}
+/* Donut-Karten etwas niedriger */
+.chart-wrap.donut{height:180px}
 
 .dash-foot{text-align:center;padding:20px;font-size:11px;color:var(--ink2);opacity:.6}
 .loading{text-align:center;padding:80px;color:var(--ink2)}
@@ -199,7 +201,11 @@ async function load(){
     if(r.status===401){showE('Falsches Passwort.');_pw='';return;}
     if(!r.ok)throw new Error('HTTP '+r.status);
     const d=await r.json();
-    d.top_pages_7d=d.top_pages_7d||[];d.top_clicks_30d=d.top_clicks_30d||[];d.daily_30d=d.daily_30d||[];d.emails=d.emails||[];
+    d.top_pages_7d=d.top_pages_7d||[];d.top_clicks_30d=d.top_clicks_30d||[];
+    d.daily_30d=d.daily_30d||[];d.emails=d.emails||[];
+    d.devices=d.devices||{};d.traffic_sources=d.traffic_sources||[];
+    d.avg_time_per_page=d.avg_time_per_page||[];d.avg_scroll_per_page=d.avg_scroll_per_page||[];
+    d.exit_pages=d.exit_pages||[];
     $('login').style.display='none';$('app').style.display='block';
     $('ts').textContent=new Date().toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
     render(d);
@@ -280,6 +286,48 @@ function render(d){
   </div>
 
   <div class="sec">
+    <div class="sec-title">Besucher — 30 Tage</div>
+    <div class="chart-row">
+      <div class="card">
+        <div class="card-head"><div><div class="card-title">Geräte</div><div class="card-sub">Mobile / Tablet / Desktop</div></div></div>
+        <div class="chart-wrap donut"><canvas id="cdev"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><div class="card-title">Neu vs. Wiederkehrend</div><div class="card-sub">Einzigartige Sessions</div></div></div>
+        <div class="chart-wrap donut"><canvas id="cnew"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Traffic-Quellen — 30 Tage</div>
+    <div class="card">
+      ${d.traffic_sources.length>0?`<div class="clist">${d.traffic_sources.map((s,i)=>{const tot=d.traffic_sources.reduce((a,x)=>a+x[1],0);return`<div class="citem"><div class="crank">${i+1}</div><div class="cname">${srcLabel(s[0])}</div><div class="cbar-wrap"><div class="cbar"><div class="cbar-fill" style="width:${Math.round(s[1]/tot*100)}%;background:linear-gradient(90deg,var(--n),#2a5aaa)"></div></div></div><div class="ccount">${s[1]}</div></div>`}).join('')}</div>`:`<div class="empty-state"><div class="e-icon">📡</div><p>Noch keine Quellen-Daten.</p></div>`}
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Verweildauer & Scroll-Tiefe — 30 Tage</div>
+    <div class="chart-row">
+      <div class="card">
+        <div class="card-head"><div><div class="card-title">Ø Verweildauer pro Seite</div><div class="card-sub">Sekunden</div></div></div>
+        ${d.avg_time_per_page.length>0?`<table class="ptable">${d.avg_time_per_page.map(p=>{const max=d.avg_time_per_page[0][1];return`<tr><td class="pname">${pN(p[0])}</td><td class="pbar-wrap"><div class="pbar"><div class="pbar-fill" style="width:${Math.round(p[1]/max*100)}%"></div></div></td><td class="pcount">${fmtTime(p[1])}</td></tr>`;}).join('')}</table>`:`<div class="empty-state"><div class="e-icon">⏱️</div><p>Noch keine Timing-Daten.</p></div>`}
+      </div>
+      <div class="card">
+        <div class="card-head"><div><div class="card-title">Ø Scroll-Tiefe pro Seite</div><div class="card-sub">Prozent der Seite gelesen</div></div></div>
+        ${d.avg_scroll_per_page.length>0?`<table class="ptable">${d.avg_scroll_per_page.map(p=>`<tr><td class="pname">${pN(p[0])}</td><td class="pbar-wrap"><div class="pbar"><div class="pbar-fill" style="width:${p[1]}%;background:linear-gradient(90deg,var(--g),#e8b84b)"></div></div></td><td class="pcount">${p[1]}%</td></tr>`).join('')}</table>`:`<div class="empty-state"><div class="e-icon">📜</div><p>Noch keine Scroll-Daten.</p></div>`}
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Exit-Seiten — 30 Tage</div>
+    <div class="card">
+      ${d.exit_pages.length>0?`<div class="clist">${d.exit_pages.map((p,i)=>`<div class="citem"><div class="crank">${i+1}</div><div class="cname">${pN(p[0])}</div><div class="cbar-wrap"><div class="cbar"><div class="cbar-fill" style="width:${Math.round(p[1]/d.exit_pages[0][1]*100)}%;background:linear-gradient(90deg,var(--c),#c0392b)"></div></div></div><div class="ccount">${p[1]}</div></div>`).join('')}</div>`:`<div class="empty-state"><div class="e-icon">🚪</div><p>Noch keine Exit-Daten.</p></div>`}
+    </div>
+  </div>
+
+  <div class="sec">
     <div class="sec-title">Handlungsempfehlungen</div>
     <div class="rec-grid">${recs.map(recCard).join('')}</div>
   </div>
@@ -296,12 +344,25 @@ function render(d){
   </div>`:''}
   `;
 
-  // Chart
+  // Charts
   const g=window.matchMedia('(prefers-color-scheme:dark)').matches?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)';
   const dL=d.daily_30d.map(r=>new Date(r[0]).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}));
   const dV=d.daily_30d.map(r=>r[1]);
+  const lineOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(13,28,63,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.75)',padding:10,cornerRadius:6,displayColors:false}},scales:{x:{grid:{color:g},ticks:{color:'#999',font:{size:10}},border:{display:false}},y:{grid:{color:g},ticks:{color:'#999',font:{size:10}},border:{display:false},beginAtZero:true}}};
+  const donutOpts=(labels)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#6b5860',font:{size:11},padding:12}},tooltip:{backgroundColor:'rgba(13,28,63,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.75)',padding:10,cornerRadius:6}}});
   if(dL.length){
-    new Chart($('cd'),{type:'line',data:{labels:dL,datasets:[{data:dV,borderColor:N,borderWidth:2,backgroundColor:'rgba(13,28,63,.08)',fill:true,tension:0.4,pointRadius:dV.length<15?4:0,pointHoverRadius:6,pointBackgroundColor:G,pointBorderColor:N,pointBorderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(13,28,63,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.75)',padding:10,cornerRadius:6,displayColors:false}},scales:{x:{grid:{color:g},ticks:{color:'#999',font:{size:10}},border:{display:false}},y:{grid:{color:g},ticks:{color:'#999',font:{size:10}},border:{display:false},beginAtZero:true}}}});
+    new Chart($('cd'),{type:'line',data:{labels:dL,datasets:[{data:dV,borderColor:N,borderWidth:2,backgroundColor:'rgba(13,28,63,.08)',fill:true,tension:0.4,pointRadius:dV.length<15?4:0,pointHoverRadius:6,pointBackgroundColor:G,pointBorderColor:N,pointBorderWidth:1.5}]},options:lineOpts});
+  }
+  // Geräte-Donut
+  const devKeys=Object.keys(d.devices);
+  if(devKeys.length){
+    const devLabels=devKeys.map(k=>k==='mobile'?'📱 Mobile':k==='tablet'?'📟 Tablet':'🖥 Desktop');
+    new Chart($('cdev'),{type:'doughnut',data:{labels:devLabels,datasets:[{data:devKeys.map(k=>d.devices[k]),backgroundColor:[N,G,C],borderWidth:0,hoverOffset:6}]},options:donutOpts()});
+  }
+  // Neu vs. Wiederkehrend
+  const nv=d.new_visitors||0,rv=d.returning_visitors||0;
+  if(nv+rv>0){
+    new Chart($('cnew'),{type:'doughnut',data:{labels:['Neu','Wiederkehrend'],datasets:[{data:[nv,rv],backgroundColor:[N,G],borderWidth:0,hoverOffset:6}]},options:donutOpts()});
   }
 }
 
@@ -327,6 +388,8 @@ function recCard(r){
   return`<div class="rec r-${r.t}"><div class="rec-icon">${r.icon}</div><div class="rec-body"><div class="rec-type">${r.t==='warn'?'Handlungsbedarf':r.t==='ok'?'Positiv':'Info'}</div><h4>${r.title}</h4><p>${r.text}</p></div></div>`;
 }
 function pN(id){const m={home:'Startseite',beratung:'Beratung',preise:'Preise',zukunft:'KI & Zukunft',faq:'FAQ',kontakt:'Kontakt',blog:'Blog',kipass:'KI Pass',contentplaner:'Content Planer',webcheck:'Web Check',dms:'DMS',tools:'Tools',prozesse:'Prozesse',impressum:'Impressum',datenschutz:'Datenschutz',agb:'AGB',glossar:'Glossar'};return m[id]||id;}
+function srcLabel(s){const m={direkt:'Direkt / Lesezeichen',google:'Google',social:'Social Media',email:'E-Mail',referral:'Andere Website'};return m[s]||s;}
+function fmtTime(s){if(s<60)return s+'s';return Math.floor(s/60)+'m '+( s%60)+'s';}
 function eRow(r){const dt=new Date(r.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'});return`<tr><td>${r.name||'—'}</td><td>${r.email}</td><td>${r.source?`<span class="pill">${r.source}</span>`:'—'}</td><td>${dt}</td></tr>`;}
 </script>
 </body>
@@ -351,7 +414,11 @@ async def track(request: Request):
     if typ == "pageview":
         sb.table("sensibilis_pageviews").insert({
             "page": data.get("page", ""),
+            "session_id": data.get("session_id", ""),
+            "device": data.get("device", ""),
+            "is_new": data.get("is_new", True),
             "referrer": data.get("referrer", ""),
+            "ref_source": data.get("ref_source", "direkt"),
             "lang": data.get("lang", ""),
             "width": data.get("w"),
             "ts": data.get("ts"),
@@ -360,7 +427,16 @@ async def track(request: Request):
         sb.table("sensibilis_clicks").insert({
             "label": data.get("label", ""),
             "page": data.get("page", ""),
+            "session_id": data.get("session_id", ""),
             "ts": data.get("ts"),
+        }).execute()
+    elif typ == "timing":
+        sb.table("sensibilis_timing").insert({
+            "session_id": data.get("session_id", ""),
+            "page": data.get("page", ""),
+            "time_on_page": data.get("time_on_page", 0),
+            "scroll_depth": data.get("scroll_depth", 0),
+            "is_exit": data.get("is_exit", False),
         }).execute()
 
     return {"ok": True}
@@ -392,41 +468,94 @@ def dashboard_data(token: str = Query(default="")):
     if not secrets.compare_digest(token.encode(), DASHBOARD_PASSWORD.encode()):
         raise HTTPException(status_code=401, detail="Nicht autorisiert")
     now = datetime.now(timezone.utc)
-    d7 = (now - timedelta(days=7)).isoformat()
+    d7  = (now - timedelta(days=7)).isoformat()
     d30 = (now - timedelta(days=30)).isoformat()
 
-    pv7 = sb.table("sensibilis_pageviews").select("page, created_at").gte("created_at", d7).execute().data
-    pv30 = sb.table("sensibilis_pageviews").select("page, created_at").gte("created_at", d30).execute().data
-    cl30 = sb.table("sensibilis_clicks").select("label, page, created_at").gte("created_at", d30).execute().data
-    emails = sb.table("sensibilis_emails").select("email, name, created_at").order("created_at", desc=True).limit(50).execute().data
+    pv7  = sb.table("sensibilis_pageviews").select("page,session_id,device,is_new,ref_source,created_at").gte("created_at", d7).execute().data
+    pv30 = sb.table("sensibilis_pageviews").select("page,session_id,device,is_new,ref_source,created_at").gte("created_at", d30).execute().data
+    cl30 = sb.table("sensibilis_clicks").select("label,page,created_at").gte("created_at", d30).execute().data
+    tm30 = sb.table("sensibilis_timing").select("page,time_on_page,scroll_depth,is_exit,created_at").gte("created_at", d30).execute().data
+    emails = sb.table("sensibilis_emails").select("email,name,source,created_at").order("created_at", desc=True).limit(50).execute().data
 
-    # Seitenaufrufe aggregieren
-    pages7 = {}
+    # Seitenaufrufe
+    pages7, pages30, tage = {}, {}, {}
     for r in pv7:
         pages7[r["page"]] = pages7.get(r["page"], 0) + 1
-
-    pages30 = {}
     for r in pv30:
         pages30[r["page"]] = pages30.get(r["page"], 0) + 1
+        tag = r["created_at"][:10]
+        tage[tag] = tage.get(tag, 0) + 1
 
-    # Klicks aggregieren
+    # Klicks
     clicks = {}
     for r in cl30:
         clicks[r["label"]] = clicks.get(r["label"], 0) + 1
 
-    # Tagesverauf letzte 30 Tage
-    tage = {}
+    # Geräte (30 Tage)
+    devices = {}
     for r in pv30:
-        tag = r["created_at"][:10]
-        tage[tag] = tage.get(tag, 0) + 1
+        dv = r.get("device") or "unbekannt"
+        devices[dv] = devices.get(dv, 0) + 1
+
+    # Neu vs. wiederkehrend (30 Tage, pro Session)
+    seen = set()
+    new_count = returning_count = 0
+    for r in pv30:
+        sid = r.get("session_id") or ""
+        if sid in seen:
+            continue
+        seen.add(sid)
+        if r.get("is_new"):
+            new_count += 1
+        else:
+            returning_count += 1
+
+    # Traffic-Quellen (30 Tage, pro Session)
+    seen2 = set()
+    sources = {}
+    for r in pv30:
+        sid = r.get("session_id") or r.get("created_at", "")
+        if sid in seen2:
+            continue
+        seen2.add(sid)
+        src = r.get("ref_source") or "direkt"
+        sources[src] = sources.get(src, 0) + 1
+
+    # Verweildauer + Scroll-Tiefe pro Seite (Durchschnitt, 30 Tage)
+    page_times: dict = {}
+    page_scroll: dict = {}
+    exit_pages: dict = {}
+    for r in tm30:
+        pg = r.get("page", "")
+        t  = r.get("time_on_page") or 0
+        sc = r.get("scroll_depth") or 0
+        if pg:
+            if pg not in page_times:
+                page_times[pg] = []
+            page_times[pg].append(t)
+            if pg not in page_scroll:
+                page_scroll[pg] = []
+            page_scroll[pg].append(sc)
+            if r.get("is_exit"):
+                exit_pages[pg] = exit_pages.get(pg, 0) + 1
+
+    avg_time  = {pg: round(sum(v)/len(v)) for pg, v in page_times.items()}
+    avg_scroll = {pg: round(sum(v)/len(v)) for pg, v in page_scroll.items()}
 
     return {
-        "sessions_7d": len(pv7),
-        "sessions_30d": len(pv30),
-        "top_pages_7d": sorted(pages7.items(), key=lambda x: x[1], reverse=True)[:10],
-        "top_pages_30d": sorted(pages30.items(), key=lambda x: x[1], reverse=True)[:10],
-        "top_clicks_30d": sorted(clicks.items(), key=lambda x: x[1], reverse=True)[:10],
-        "daily_30d": sorted(tage.items()),
-        "emails": emails,
-        "email_count": len(emails),
+        "sessions_7d":      len(pv7),
+        "sessions_30d":     len(pv30),
+        "top_pages_7d":     sorted(pages7.items(),  key=lambda x: x[1], reverse=True)[:10],
+        "top_pages_30d":    sorted(pages30.items(), key=lambda x: x[1], reverse=True)[:10],
+        "top_clicks_30d":   sorted(clicks.items(),  key=lambda x: x[1], reverse=True)[:10],
+        "daily_30d":        sorted(tage.items()),
+        "devices":          devices,
+        "new_visitors":     new_count,
+        "returning_visitors": returning_count,
+        "traffic_sources":  sorted(sources.items(), key=lambda x: x[1], reverse=True),
+        "avg_time_per_page":   sorted(avg_time.items(),   key=lambda x: x[1], reverse=True)[:8],
+        "avg_scroll_per_page": sorted(avg_scroll.items(), key=lambda x: x[1], reverse=True)[:8],
+        "exit_pages":       sorted(exit_pages.items(), key=lambda x: x[1], reverse=True)[:8],
+        "emails":           emails,
+        "email_count":      len(emails),
     }
