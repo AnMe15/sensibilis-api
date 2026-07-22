@@ -849,7 +849,10 @@ def dashboard_data(token: str = Query(default=""), days: int = Query(default=30)
     pv30 = sb.table("sensibilis_pageviews").select("page,session_id,device,is_new,ref_source,created_at").gte("created_at", d30).execute().data
     cl30 = sb.table("sensibilis_clicks").select("label,page,created_at").gte("created_at", d30).execute().data
     tm30 = sb.table("sensibilis_timing").select("page,time_on_page,scroll_depth,is_exit,created_at").gte("created_at", d30).execute().data
-    emails = sb.table("sensibilis_emails").select("email,name,source,created_at").order("created_at", desc=True).limit(50).execute().data
+    try:
+        emails = sb.table("sensibilis_emails").select("email,name,source,created_at").order("created_at", desc=True).limit(50).execute().data
+    except Exception:
+        emails = []
 
     # Seitenaufrufe
     pages7, pages30, tage = {}, {}, {}
