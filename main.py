@@ -187,6 +187,13 @@ main{max-width:1200px;margin:0 auto;padding:40px 28px 80px}
 
 .dash-foot{text-align:center;padding:20px;font-size:11px;color:var(--ink2);opacity:.5}
 .loading{text-align:center;padding:80px;color:var(--ink2)}
+
+/* TABS */
+.tab-bar{display:flex;gap:4px;margin-bottom:32px;background:rgba(13,28,63,.06);border-radius:12px;padding:4px}
+.tab-btn{flex:1;padding:10px 20px;background:none;border:none;border-radius:9px;font-size:13px;font-weight:600;color:var(--ink2);cursor:pointer;transition:.15s;text-align:center}
+.tab-btn.active{background:#fff;color:var(--n);box-shadow:0 1px 6px rgba(13,28,63,.12)}
+.tab-btn:hover:not(.active){color:var(--ink);background:rgba(255,255,255,.5)}
+.chat-log-msg{max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body>
@@ -227,7 +234,14 @@ main{max-width:1200px;margin:0 auto;padding:40px 28px 80px}
       <button class="hlogout" onclick="doLogout()">Abmelden</button>
     </div>
   </header>
-  <main><div id="content"><div class="loading">Daten werden geladen&hellip;</div></div></main>
+  <main>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('analytics')" id="tab-analytics">&#128202; Analytik</button>
+      <button class="tab-btn" onclick="switchTab('chat')" id="tab-chat">&#128172; Chatbot</button>
+    </div>
+    <div id="content"><div class="loading">Daten werden geladen&hellip;</div></div>
+    <div id="content-chat" style="display:none"><div class="loading">Chatbot-Daten werden geladen&hellip;</div></div>
+  </main>
   <div class="dash-foot">Sensibilis Analytics &mdash; nur zur internen Nutzung</div>
 </div>
 <script>
@@ -240,11 +254,22 @@ $('pw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 function doLogout(){_pw='';$('app').style.display='none';$('login').style.display='flex';$('pw').value='';}
 function showE(m){$('lerr').textContent=m;}
 
+let curTab='analytics';
+function switchTab(t){
+  curTab=t;
+  ['analytics','chat'].forEach(function(id){
+    var btn=$('tab-'+id);if(btn)btn.classList.toggle('active',id===t);
+    var c=id==='analytics'?$('content'):$('content-chat');
+    if(c)c.style.display=id===t?'':'none';
+  });
+  if(t==='chat'&&_pw)loadChat();
+}
 function setPeriod(d){
   curDays=d;
   ['p7','p30','p90'].forEach(id=>$('p'+id.slice(1))&&$('p'+id.slice(1)).classList.remove('active'));
   $('p'+d)&&$('p'+d).classList.add('active');
   load();
+  if(curTab==='chat'&&_pw)loadChat();
 }
 function toggleCompare(){
   curCompare=!curCompare;
@@ -477,6 +502,53 @@ function pN(id){const m={home:'Startseite',beratung:'Beratung',preise:'Preise',z
 function srcLabel(s){const m={direkt:'Direkt / Lesezeichen',google:'Google',social:'Social Media',email:'E-Mail',referral:'Andere Website'};return m[s]||s;}
 function fmtTime(s){if(!s)return'—';if(s<60)return s+'s';return Math.floor(s/60)+'m '+(s%60)+'s';}
 function eRow(r){const dt=new Date(r.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'});return`<tr><td>${r.name||'—'}</td><td>${r.email}</td><td>${r.source?`<span class="pill">${r.source}</span>`:'—'}</td><td>${dt}</td></tr>`;}
+
+async function loadChat(){
+  const el=$('content-chat');
+  if(el)el.innerHTML='<div class="loading">Chatbot-Daten werden geladen…</div>';
+  try{
+    const r=await fetch('/dashboard/chat?token='+encodeURIComponent(_pw)+'&days='+curDays);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    renderChat(d);
+  }catch(e){if(el)el.innerHTML='<div class="loading">Fehler: '+e.message+'</div>';}
+}
+function renderChat(d){
+  const el=$('content-chat');
+  if(!el)return;
+  const sessions=d.sessions||0,msgs=d.messages||0,leads=d.leads||0;
+  const leadRate=msgs>0?((leads/msgs)*100).toFixed(1):'0.0';
+  const topics=d.topics||[];
+  const maxT=topics[0]?topics[0][1]:1;
+  const logs=d.log||[];
+  el.innerHTML=`
+  <div class="sec">
+    <div class="sec-title"><span class="sec-icon">💬</span> Chatbot-Übersicht</div>
+    <div class="kpi-grid">
+      <div class="kpi k-n"><div class="kpi-icon">💬</div><div class="kpi-label">Chat-Sessions</div><div class="kpi-value">${sessions}</div><div class="kpi-sub">Einzelne Gespräche</div></div>
+      <div class="kpi k-n"><div class="kpi-icon">✉️</div><div class="kpi-label">Nachrichten</div><div class="kpi-value">${msgs}</div><div class="kpi-sub">Fragen von Besuchern</div></div>
+      <div class="kpi k-c"><div class="kpi-icon">🎯</div><div class="kpi-label">Leads</div><div class="kpi-value">${leads}</div><div class="kpi-sub">Kontakt-Absicht erkannt</div></div>
+      <div class="kpi k-g"><div class="kpi-icon">📈</div><div class="kpi-label">Lead-Rate</div><div class="kpi-value">${leadRate}%</div><div class="kpi-sub">Anteil mit Lead-Absicht</div></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-title"><span class="sec-icon">🔥</span> Top-Themen — Was interessiert die Besucher?</div>
+    <div class="card">
+      ${topics.length>0?`<div class="clist">${topics.map((t,i)=>`<div class="citem"><div class="crank">${i+1}</div><div class="cname">${t[0]}</div><div class="cbar-wrap"><div class="cbar"><div class="cbar-fill" style="width:${Math.round(t[1]/maxT*100)}%"></div></div></div><div class="ccount">${t[1]}</div></div>`).join('')}</div>`:`<div class="empty-state"><div class="e-icon">💬</div><p>Noch keine Chat-Daten.<br>Sobald jemand den Chatbot nutzt, erscheinen hier die Themen.</p></div>`}
+    </div>
+  </div>
+  ${logs.length>0?`
+  <div class="sec">
+    <div class="sec-title"><span class="sec-icon">📋</span> Gesprächslog (letzte 50)</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="perf-table">
+        <thead><tr><th>Datum/Zeit</th><th>Frage</th><th>Thema</th><th>Lead</th></tr></thead>
+        <tbody>${logs.map(r=>`<tr><td style="white-space:nowrap">${new Date(r.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td><td><div class="chat-log-msg">${(r.user_message||'').replace(/</g,'&lt;')}</div></td><td>${r.matched_topic||'—'}</td><td>${r.led_to_contact?'<span class="perf-badge perf-gut">Ja</span>':'—'}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>
+  </div>`:''}
+  `;
+}
 </script>
 </body>
 </html>"""
@@ -840,4 +912,47 @@ def dashboard_data(token: str = Query(default=""), days: int = Query(default=30)
         "exit_pages":          sorted(exit_pages.items(), key=lambda x: x[1], reverse=True)[:8],
         "emails":              emails,
         "email_count":         len(emails),
+    }
+
+
+@app.post("/chat")
+async def save_chat(request: Request):
+    import asyncio
+    try:
+        data = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Kein JSON")
+    await asyncio.to_thread(
+        lambda: sb.table("sensibilis_chats").insert({
+            "session_id": data.get("session_id", ""),
+            "user_message": (data.get("user_message") or "")[:500],
+            "bot_reply": (data.get("bot_reply") or "")[:1000],
+            "matched_topic": data.get("matched_topic"),
+            "led_to_contact": bool(data.get("led_to_contact", False)),
+        }).execute()
+    )
+    return {"ok": True}
+
+
+@app.get("/dashboard/chat")
+def dashboard_chat(token: str = Query(default=""), days: int = Query(default=30)):
+    if not secrets.compare_digest(token.encode(), DASHBOARD_PASSWORD.encode()):
+        raise HTTPException(status_code=401, detail="Nicht autorisiert")
+    now = datetime.now(timezone.utc)
+    since = (now - timedelta(days=days)).isoformat()
+    rows = sb.table("sensibilis_chats").select("*").gte("created_at", since).order("created_at", desc=True).limit(200).execute().data
+    sessions = len(set(r.get("session_id", "") for r in rows))
+    messages = len(rows)
+    leads = sum(1 for r in rows if r.get("led_to_contact"))
+    topics: dict = {}
+    for r in rows:
+        t = r.get("matched_topic")
+        if t:
+            topics[t] = topics.get(t, 0) + 1
+    return {
+        "sessions": sessions,
+        "messages": messages,
+        "leads": leads,
+        "topics": sorted(topics.items(), key=lambda x: x[1], reverse=True),
+        "log": rows[:50],
     }
