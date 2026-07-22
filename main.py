@@ -285,7 +285,7 @@ async function load(){
       fetch('/dashboard/seo?token='+encodeURIComponent(_pw))
     ]);
     if(r.status===401){showE('Falsches Passwort.');_pw='';return;}
-    if(!r.ok)throw new Error('HTTP '+r.status);
+    if(!r.ok){const t=await r.json().catch(()=>({}));throw new Error('HTTP '+r.status+': '+(t.detail||'?'));}
     const d=await r.json();
     const seo=rs.ok?await rs.json():{checks:[],score:null};
     ['top_pages_7d','top_clicks_30d','daily_30d','emails','traffic_sources',
@@ -837,8 +837,15 @@ async def save_email(request: Request):
 
 @app.get("/dashboard/data")
 def dashboard_data(token: str = Query(default=""), days: int = Query(default=30), compare: bool = Query(default=False)):
+    import traceback
     if not secrets.compare_digest(token.encode(), DASHBOARD_PASSWORD.encode()):
         raise HTTPException(status_code=401, detail="Nicht autorisiert")
+    try:
+        return _dashboard_data_inner(days, compare)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"{type(exc).__name__}: {exc}\n{traceback.format_exc()}")
+
+def _dashboard_data_inner(days: int, compare: bool):
     now  = datetime.now(timezone.utc)
     d7   = (now - timedelta(days=7)).isoformat()
     d30  = (now - timedelta(days=days)).isoformat()
