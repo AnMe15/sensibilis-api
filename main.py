@@ -521,6 +521,17 @@ function renderChat(d){
   const topics=d.topics||[];
   const maxT=topics[0]?topics[0][1]:1;
   const logs=d.log||[];
+  const unanswered=d.unanswered||[];
+  const daily=d.daily||[];
+
+  const convMap={};
+  [...logs].reverse().forEach(r=>{
+    const sid=r.session_id||'anon';
+    if(!convMap[sid])convMap[sid]=[];
+    convMap[sid].push(r);
+  });
+  const convs=Object.entries(convMap).sort((a,b)=>new Date(b[1][b[1].length-1].created_at)-new Date(a[1][a[1].length-1].created_at));
+
   el.innerHTML=`
   <div class="sec">
     <div class="sec-title"><span class="sec-icon">💬</span> Chatbot-Übersicht</div>
@@ -531,23 +542,69 @@ function renderChat(d){
       <div class="kpi k-g"><div class="kpi-icon">📈</div><div class="kpi-label">Lead-Rate</div><div class="kpi-value">${leadRate}%</div><div class="kpi-sub">Anteil mit Lead-Absicht</div></div>
     </div>
   </div>
+
+  ${daily.length>0?`
+  <div class="sec">
+    <div class="sec-title"><span class="sec-icon">📅</span> Chat-Verlauf</div>
+    <div class="card"><div class="card-title">Nachrichten pro Tag</div><div class="card-sub">Nutzungsfrequenz des Chatbots</div><div class="chart-wrap"><canvas id="cch"></canvas></div></div>
+  </div>`:''}
+
   <div class="sec">
     <div class="sec-title"><span class="sec-icon">🔥</span> Top-Themen — Was interessiert die Besucher?</div>
     <div class="card">
       ${topics.length>0?`<div class="clist">${topics.map((t,i)=>`<div class="citem"><div class="crank">${i+1}</div><div class="cname">${t[0]}</div><div class="cbar-wrap"><div class="cbar"><div class="cbar-fill" style="width:${Math.round(t[1]/maxT*100)}%"></div></div></div><div class="ccount">${t[1]}</div></div>`).join('')}</div>`:`<div class="empty-state"><div class="e-icon">💬</div><p>Noch keine Chat-Daten.<br>Sobald jemand den Chatbot nutzt, erscheinen hier die Themen.</p></div>`}
     </div>
   </div>
-  ${logs.length>0?`
+
+  ${unanswered.length>0?`
   <div class="sec">
-    <div class="sec-title"><span class="sec-icon">📋</span> Gesprächslog (letzte 50)</div>
+    <div class="sec-title"><span class="sec-icon">❓</span> Unbeantwortete Fragen (${unanswered.length})</div>
+    <div class="sec-sub">Fragen ohne Treffer — zeigen Wissenslücken und mögliche Erweiterungen des Chatbots</div>
     <div class="card" style="padding:0;overflow:hidden">
       <table class="perf-table">
-        <thead><tr><th>Datum/Zeit</th><th>Frage</th><th>Thema</th><th>Lead</th></tr></thead>
-        <tbody>${logs.map(r=>`<tr><td style="white-space:nowrap">${new Date(r.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td><td><div class="chat-log-msg">${(r.user_message||'').replace(/</g,'&lt;')}</div></td><td>${r.matched_topic||'—'}</td><td>${r.led_to_contact?'<span class="perf-badge perf-gut">Ja</span>':'—'}</td></tr>`).join('')}</tbody>
+        <thead><tr><th>Datum/Zeit</th><th>Frage</th></tr></thead>
+        <tbody>${unanswered.map(r=>`<tr><td style="white-space:nowrap">${new Date(r.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td><td>${(r.user_message||'').replace(/</g,'&lt;')}</td></tr>`).join('')}</tbody>
       </table>
     </div>
   </div>`:''}
+
+  ${convs.length>0?`
+  <div class="sec">
+    <div class="sec-title"><span class="sec-icon">📋</span> Gespräche (${convs.length} Sessions)</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${convs.map(([sid,ms])=>{
+        const last=ms[ms.length-1];
+        const dt=new Date(last.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+        const preview=(ms[0].user_message||'').replace(/</g,'&lt;').slice(0,60);
+        const hasLead=ms.some(m=>m.led_to_contact);
+        return`<details style="background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden">
+          <summary style="padding:14px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;list-style:none;font-size:13px;user-select:none">
+            <span style="color:var(--ink2);white-space:nowrap;flex-shrink:0">${dt}</span>
+            <span style="flex:1;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"${preview}${preview.length>=60?'…':''}"</span>
+            <span style="color:var(--ink2);white-space:nowrap;flex-shrink:0">${ms.length} Nachricht${ms.length>1?'en':''}</span>
+            ${hasLead?'<span class="perf-badge perf-gut" style="flex-shrink:0">Lead</span>':''}
+          </summary>
+          <div style="border-top:1px solid var(--bdr);padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+            ${ms.map(m=>`<div>
+              <div style="font-size:10px;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Besucher</div>
+              <div style="font-size:13px;color:var(--ink);background:rgba(140,26,42,.06);padding:8px 12px;border-radius:6px;line-height:1.5">${(m.user_message||'').replace(/</g,'&lt;')}</div>
+              <div style="font-size:10px;font-weight:700;color:var(--n);text-transform:uppercase;letter-spacing:.08em;margin:8px 0 4px">Chatbot${m.matched_topic?' · <span style="font-weight:400;text-transform:none;letter-spacing:0">'+m.matched_topic+'</span>':''}</div>
+              <div style="font-size:13px;color:var(--ink2);background:var(--page);padding:8px 12px;border-radius:6px;line-height:1.5">${(m.bot_reply||'').replace(/</g,'&lt;').slice(0,220)}${(m.bot_reply||'').length>220?'…':''}</div>
+            </div>`).join('<div style="height:1px;background:var(--bdr)"></div>')}
+          </div>
+        </details>`;
+      }).join('')}
+    </div>
+  </div>`:''}
   `;
+
+  if(daily.length){
+    const ttOpts={backgroundColor:'rgba(13,28,63,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.75)',padding:10,cornerRadius:6,displayColors:false};
+    const dL=daily.map(x=>new Date(x[0]).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}));
+    const dV=daily.map(x=>x[1]);
+    const canv=$('cch');
+    if(canv)new Chart(canv,{type:'line',data:{labels:dL,datasets:[{data:dV,borderColor:C,borderWidth:2,backgroundColor:'rgba(140,26,42,.08)',fill:true,tension:0.4,pointRadius:dV.length<15?4:0,pointHoverRadius:6,pointBackgroundColor:G,pointBorderColor:C,pointBorderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},scales:{x:{grid:{color:'rgba(0,0,0,.05)'},ticks:{color:'#999',font:{size:10}},border:{display:false}},y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{color:'#999',font:{size:10}},border:{display:false},beginAtZero:true}}}});
+  }
 }
 </script>
 </body>
@@ -940,19 +997,26 @@ def dashboard_chat(token: str = Query(default=""), days: int = Query(default=30)
         raise HTTPException(status_code=401, detail="Nicht autorisiert")
     now = datetime.now(timezone.utc)
     since = (now - timedelta(days=days)).isoformat()
-    rows = sb.table("sensibilis_chats").select("*").gte("created_at", since).order("created_at", desc=True).limit(200).execute().data
+    rows = sb.table("sensibilis_chats").select("*").gte("created_at", since).order("created_at", desc=True).limit(500).execute().data
     sessions = len(set(r.get("session_id", "") for r in rows))
     messages = len(rows)
     leads = sum(1 for r in rows if r.get("led_to_contact"))
     topics: dict = {}
+    daily: dict = {}
     for r in rows:
         t = r.get("matched_topic")
         if t:
             topics[t] = topics.get(t, 0) + 1
+        d = (r.get("created_at") or "")[:10]
+        if d:
+            daily[d] = daily.get(d, 0) + 1
+    unanswered = [r for r in rows if not r.get("matched_topic")]
     return {
         "sessions": sessions,
         "messages": messages,
         "leads": leads,
         "topics": sorted(topics.items(), key=lambda x: x[1], reverse=True),
-        "log": rows[:50],
+        "daily": sorted(daily.items()),
+        "unanswered": unanswered[:20],
+        "log": rows[:100],
     }
