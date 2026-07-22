@@ -9,8 +9,8 @@ from bs4 import BeautifulSoup
 
 app = FastAPI()
 
-SUPABASE_URL = os.environ["SUPABASE_URL"]
-SUPABASE_KEY = os.environ["SUPABASE_KEY"]
+SUPABASE_URL = os.environ["SUPABASE_URL"].strip()
+SUPABASE_KEY = re.sub(r'[^\x20-\x7E]', '', os.environ["SUPABASE_KEY"]).strip()
 DASHBOARD_PASSWORD = os.environ.get("DASHBOARD_PASSWORD", "sensibilis2026")
 
 sb = create_client(SUPABASE_URL, SUPABASE_KEY)
