@@ -776,6 +776,10 @@ def dashboard_page():
     from fastapi.responses import HTMLResponse as HR
     return HR(content=DASHBOARD_HTML, headers={"Cache-Control": "no-store"})
 
+@app.get("/debug")
+def debug_info():
+    return {"v": "005", "key_len": len(SUPABASE_KEY), "key_ok": SUPABASE_KEY.startswith("eyJ"), "url_ok": "supabase.co" in SUPABASE_URL}
+
 @app.post("/track")
 async def track(request: Request):
     try:
