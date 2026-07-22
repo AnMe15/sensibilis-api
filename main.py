@@ -773,7 +773,8 @@ def root():
 
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard_page():
-    return DASHBOARD_HTML
+    from fastapi.responses import HTMLResponse as HR
+    return HR(content=DASHBOARD_HTML, headers={"Cache-Control": "no-store"})
 
 @app.post("/track")
 async def track(request: Request):
