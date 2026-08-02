@@ -189,10 +189,10 @@ main{max-width:1200px;margin:0 auto;padding:40px 28px 80px}
 .loading{text-align:center;padding:80px;color:var(--ink2)}
 
 /* TABS */
-.tab-bar{display:flex;gap:4px;margin-bottom:32px;background:rgba(240,234,224,.97);border-radius:14px;padding:5px;position:sticky;top:68px;z-index:50;box-shadow:0 4px 20px rgba(13,28,63,.13);backdrop-filter:blur(10px)}
-.tab-btn{flex:1;padding:11px 20px;background:none;border:none;border-radius:10px;font-size:13px;font-weight:600;color:var(--ink2);cursor:pointer;transition:.18s;text-align:center;letter-spacing:.01em}
-.tab-btn.active{background:linear-gradient(135deg,var(--n) 0%,#1a3a72 100%);color:#fff;box-shadow:0 2px 10px rgba(13,28,63,.25)}
-.tab-btn:hover:not(.active){color:var(--ink);background:rgba(255,255,255,.6)}
+.tab-bar{display:flex;gap:6px;margin-bottom:32px;background:rgba(13,28,63,.1);border-radius:14px;padding:6px;position:sticky;top:68px;z-index:50;box-shadow:0 4px 24px rgba(13,28,63,.18);backdrop-filter:blur(10px);border:1.5px solid rgba(13,28,63,.08)}
+.tab-btn{flex:1;padding:12px 20px;background:rgba(255,255,255,.5);border:1.5px solid rgba(13,28,63,.08);border-radius:10px;font-size:13px;font-weight:700;color:rgba(13,28,63,.6);cursor:pointer;transition:.18s;text-align:center;letter-spacing:.01em}
+.tab-btn.active{background:linear-gradient(135deg,var(--n) 0%,#1e4080 100%);color:#fff;border-color:transparent;box-shadow:0 3px 14px rgba(13,28,63,.35)}
+.tab-btn:hover:not(.active){color:var(--n);background:rgba(255,255,255,.85);border-color:rgba(13,28,63,.15)}
 .chat-log-msg{max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* LEADS & PIPELINE */
 .score-hot{background:#fdf2f2;color:#8C1A2A;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-block}
@@ -289,11 +289,12 @@ main{max-width:1200px;margin:0 auto;padding:40px 28px 80px}
 .pipe-rbtn{background:var(--page);border:1.5px solid var(--bdr);color:var(--ink2);font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;cursor:pointer;transition:.15s}
 .pipe-rbtn:hover{border-color:var(--n);color:var(--n)}
 .pipe-track{margin-bottom:28px}
-.pipe-track-lbl{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px}
-.pipe-track-lbl::after{content:'';flex:1;height:1.5px}
-.warm-lbl{color:#7a4800;background:linear-gradient(90deg,rgba(184,146,74,.18),rgba(184,146,74,.04));border-left:4px solid #c49a3a}.warm-lbl::after{background:linear-gradient(90deg,rgba(184,146,74,.35),transparent)}
-.cold-lbl{color:#0d2255;background:linear-gradient(90deg,rgba(13,28,63,.1),rgba(13,28,63,.02));border-left:4px solid #4a7fc1}.cold-lbl::after{background:linear-gradient(90deg,rgba(26,63,107,.3),transparent)}
-.abschluss-lbl{color:#1a5c2e;background:linear-gradient(90deg,rgba(26,92,46,.1),rgba(26,92,46,.02));border-left:4px solid #2a8a46}.abschluss-lbl::after{background:linear-gradient(90deg,rgba(26,92,46,.25),transparent)}
+.pipe-track{border-radius:14px;padding:20px;margin-bottom:8px}
+.pipe-track-lbl{font-size:12px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:14px;padding:12px 18px;border-radius:10px}
+.pipe-track-lbl::after{content:'';flex:1;height:2px}
+.warm-lbl{color:#6b3d00;background:linear-gradient(90deg,rgba(184,146,74,.25),rgba(184,146,74,.06));border-left:5px solid #c49a3a;border-top:1px solid rgba(196,154,58,.3);border-bottom:1px solid rgba(196,154,58,.3)}.warm-lbl::after{background:linear-gradient(90deg,rgba(184,146,74,.5),rgba(184,146,74,.08))}
+.cold-lbl{color:#091d46;background:linear-gradient(90deg,rgba(13,28,63,.14),rgba(13,28,63,.03));border-left:5px solid #3a6ab0;border-top:1px solid rgba(74,127,193,.25);border-bottom:1px solid rgba(74,127,193,.25)}.cold-lbl::after{background:linear-gradient(90deg,rgba(26,63,107,.45),rgba(26,63,107,.06))}
+.abschluss-lbl{color:#0e3d1c;background:linear-gradient(90deg,rgba(26,92,46,.14),rgba(26,92,46,.03));border-left:5px solid #2a8a46;border-top:1px solid rgba(42,138,70,.25);border-bottom:1px solid rgba(42,138,70,.25)}.abschluss-lbl::after{background:linear-gradient(90deg,rgba(26,92,46,.4),rgba(26,92,46,.06))}
 .won-hd{background:#edf7f0;border-bottom:2px solid #1a6b2e}
 .lost-hd{background:#fdf2f2;border-bottom:2px solid #9e1a2c}
 .pipe-row{display:grid;gap:12px;overflow-x:auto}
@@ -846,8 +847,8 @@ function renderLeads(leads){
     }).join('')}</div>
   </div>`;
 
-  const warmHtml=`<div class="pipe-track">
-    <div class="pipe-track-lbl warm-lbl">Warm-Spur</div>
+  const warmHtml=`<div class="pipe-track" style="background:linear-gradient(160deg,rgba(196,154,58,.1) 0%,rgba(196,154,58,.04) 40%,transparent 100%);border:1.5px solid rgba(196,154,58,.2)">
+    <div class="pipe-track-lbl warm-lbl">&#x1F525; Warm-Spur</div>
     <div class="pipe-row pipe-row-3">
       ${pipeCol('Erstantwort',warm.filter(l=>stg(l)==='w1'),'warm-hd')}
       ${pipeCol('Kosten des Wartens',warm.filter(l=>stg(l)==='w2'),'warm-hd')}
@@ -855,8 +856,8 @@ function renderLeads(leads){
     </div>
   </div>`;
 
-  const coldHtml=`<div class="pipe-track">
-    <div class="pipe-track-lbl cold-lbl">Kalt-Spur</div>
+  const coldHtml=`<div class="pipe-track" style="background:linear-gradient(160deg,rgba(13,28,63,.08) 0%,rgba(13,28,63,.03) 40%,transparent 100%);border:1.5px solid rgba(74,127,193,.2)">
+    <div class="pipe-track-lbl cold-lbl">&#x2744;&#xFE0F; Kalt-Spur</div>
     <div class="pipe-row pipe-row-5">
       ${pipeCol('Erstantwort',cold.filter(l=>stg(l)==='c1'),'cold-hd')}
       ${pipeCol('Das stille Problem',cold.filter(l=>stg(l)==='c2'),'cold-hd')}
@@ -866,8 +867,8 @@ function renderLeads(leads){
     </div>
   </div>`;
 
-  const abschlussHtml=`<div class="pipe-track">
-    <div class="pipe-track-lbl abschluss-lbl">Abgeschlossen</div>
+  const abschlussHtml=`<div class="pipe-track" style="background:linear-gradient(160deg,rgba(26,92,46,.07) 0%,transparent 100%);border:1.5px solid rgba(42,138,70,.18)">
+    <div class="pipe-track-lbl abschluss-lbl">&#x2705; Abgeschlossen</div>
     <div class="pipe-row pipe-row-2">
       <div class="pipe-col"><div class="pipe-col-hd won-hd"><span class="pipe-col-lbl">Gewonnen</span><span class="pipe-col-cnt">${gewonnen.length}</span></div><div class="pipe-col-body">${gewonnen.length>0?gewonnen.map(pipeCard).join(''):'<div class="pipe-none">Keine</div>'}</div></div>
       <div class="pipe-col"><div class="pipe-col-hd lost-hd"><span class="pipe-col-lbl">Nicht gewonnen</span><span class="pipe-col-cnt">${verloren.length}</span></div><div class="pipe-col-body">${verloren.length>0?verloren.map(pipeCard).join(''):'<div class="pipe-none">Keine</div>'}</div></div>
