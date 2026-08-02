@@ -312,6 +312,10 @@ main{max-width:1200px;margin:0 auto;padding:40px 28px 80px}
 .pipe-col-body{padding:8px;display:flex;flex-direction:column;gap:8px;min-height:72px}
 .pipe-card{background:var(--page);border-radius:9px;padding:12px 13px;cursor:pointer;transition:.15s;border:1.5px solid transparent}
 .pipe-card:hover{border-color:var(--g);background:#fffdf6}
+.pipe-card.rotting{border-color:rgba(180,30,30,.35);background:#fff8f8}
+.pipe-card.rotting:hover{border-color:rgba(180,30,30,.6);background:#fff2f2}
+.rot-badge{font-size:10px;font-weight:700;color:#b41e1e;background:rgba(180,30,30,.1);padding:2px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;margin-bottom:5px;white-space:nowrap}
+.last-contact{font-size:10px;color:var(--ink2);white-space:nowrap}
 .pipe-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:4px}
 .pipe-name{font-size:13px;font-weight:700;color:var(--ink);line-height:1.2;flex:1}
 .pipe-co{font-size:11px;color:var(--ink2);margin-bottom:6px}
@@ -796,22 +800,33 @@ function renderLeads(leads){
     return new Date(l.stage_entered_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
   }
   function dSince(l){return Math.floor((Date.now()-new Date(l.created_at))/86400000);}
+  function isRotting(l){
+    const ref=l.stage_entered_at||l.created_at;
+    return Math.floor((Date.now()-new Date(ref))/86400000)>=3;
+  }
+  function lastContact(l){
+    const ref=l.stage_entered_at||l.created_at;
+    const d=Math.floor((Date.now()-new Date(ref))/86400000);
+    return d===0?'Heute':d===1?'Gestern':'vor '+d+'d';
+  }
 
   function pipeCard(l){
     const idx=_leadsCache.indexOf(l);
     const d=dSince(l);
+    const rot=isRotting(l);
     const pain=l.herausforderung?(l.herausforderung.length>80?l.herausforderung.slice(0,80)+'…':l.herausforderung):'';
-    return`<div class="pipe-card" onclick="openLead(_leadsCache[${idx}])">
+    return`<div class="pipe-card${rot?' rotting':''}" onclick="openLead(_leadsCache[${idx}])">
       <div class="pipe-card-top">
         <span class="pipe-name">${leadName(l)}</span>
         <span class="score-${l.score||'cold'}" style="font-size:10px">${(l.score||'').toUpperCase()}</span>
       </div>
+      ${rot?`<span class="rot-badge">&#9888; Kein Kontakt seit ${lastContact(l)}</span>`:''}
       ${l.unternehmen?`<div class="pipe-co">${l.unternehmen}</div>`:''}
       ${pain?`<div class="pipe-pain">${pain}</div>`:''}
       <div class="pipe-foot">
         ${l.produkt?`<span class="pipe-tag">${prodLabel(l.produkt)}</span>`:''}
-        <span class="pipe-tag pipe-day">${d===0?'heute':d+'d'}</span>
-        ${stgDate(l)?`<span class="pipe-tag pipe-date">seit ${stgDate(l)}</span>`:''}
+        <span class="pipe-tag pipe-day">${d===0?'heute':d+'d im Funnel'}</span>
+        <span class="last-contact">Letzter Kontakt: ${lastContact(l)}</span>
         ${l.email?`<a class="pipe-mail" href="mailto:${l.email}" onclick="event.stopPropagation()">Mail ↗</a>`:''}
       </div>
     </div>`;
