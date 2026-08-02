@@ -194,6 +194,136 @@ main{max-width:1200px;margin:0 auto;padding:40px 28px 80px}
 .tab-btn.active{background:#fff;color:var(--n);box-shadow:0 1px 6px rgba(13,28,63,.12)}
 .tab-btn:hover:not(.active){color:var(--ink);background:rgba(255,255,255,.5)}
 .chat-log-msg{max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* LEADS & PIPELINE */
+.score-hot{background:#fdf2f2;color:#8C1A2A;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-block}
+.score-warm{background:#fff8ec;color:#8C5A00;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-block}
+.score-cold{background:#eef3fb;color:#1a3f6b;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-block}
+.ltable{width:100%;border-collapse:collapse;font-size:13px}
+.ltable th{background:var(--n);color:#fff;padding:10px 14px;text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.ltable td{padding:11px 14px;border-bottom:1px solid var(--bdr);color:var(--ink);vertical-align:middle}
+.ltable tr:last-child td{border-bottom:none}
+.ltable tr:hover td{background:rgba(184,146,74,.05)}
+.ltable .tm{color:var(--ink2);font-size:12px}
+.ltable tbody tr{cursor:pointer}
+.ltable tbody tr:hover td{background:rgba(184,146,74,.1)!important}
+/* AKTIONSZENTRALE */
+.ak-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:900px){.ak-grid{grid-template-columns:1fr}}
+.ak-col{background:var(--surf);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.ak-head{padding:11px 16px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.ak-col.heute .ak-head{background:#fdf2f2;color:var(--c);border-bottom:2px solid var(--c)}
+.ak-col.morgen .ak-head{background:#fff8ec;color:#8C5A00;border-bottom:2px solid var(--g)}
+.ak-col.warten .ak-head{background:#f4f4f4;color:var(--ink2);border-bottom:2px solid #d8d8d8}
+.ak-body{padding:10px;display:flex;flex-direction:column;gap:8px;min-height:52px}
+.ak-card{background:var(--page);border-radius:8px;padding:11px 13px}
+.ak-name{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.ak-grund{font-size:11px;color:var(--ink2);line-height:1.5;margin-bottom:9px}
+.ak-btns{display:flex;gap:7px}
+.ak-btn{flex:1;text-align:center;padding:7px 8px;border-radius:7px;font-size:11px;font-weight:600;text-decoration:none;display:block}
+.ak-btn.call{background:var(--n);color:#fff}
+.ak-btn.mail{background:transparent;color:var(--n);border:1.5px solid var(--bdr)}
+.ak-empty{font-size:12px;color:var(--ink2);padding:14px;text-align:center;opacity:.55}
+/* TIMELINE */
+.tl-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.tl-kpi{background:var(--surf);border-radius:10px;padding:14px 16px;box-shadow:var(--shadow);text-align:center}
+.tl-kpi-val{font-size:30px;font-weight:800;color:var(--n);font-variant-numeric:tabular-nums;line-height:1}
+.tl-kpi-lbl{font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.08em;margin-top:5px;font-weight:600}
+.tl-filter{display:flex;gap:6px;margin-bottom:16px}
+.tl-fbtn{background:var(--page);border:1.5px solid var(--bdr);color:var(--ink2);font-size:11px;font-weight:600;padding:5px 14px;border-radius:20px;cursor:pointer;transition:.15s}
+.tl-fbtn:hover{border-color:var(--n);color:var(--n)}
+.tl-fbtn.active{background:var(--n);color:#fff;border-color:var(--n)}
+.tl-lead-block{margin-bottom:16px}
+.tl-lead-hd{font-size:13px;font-weight:700;color:var(--ink);padding:10px 14px;background:var(--surf);border-radius:8px 8px 0 0;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.tl-track{padding:16px 14px 10px 42px;background:var(--surf);border-radius:0 0 8px 8px;position:relative}
+.tl-track::before{content:'';position:absolute;left:21px;top:0;bottom:0;width:2px;background:var(--bdr)}
+.tl-evt{position:relative;margin-bottom:14px}
+.tl-evt:last-child{margin-bottom:0}
+.tl-dot{position:absolute;left:-28px;width:14px;height:14px;border-radius:50%;top:2px;border:2.5px solid var(--surf)}
+.tl-evt-lbl{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.tl-evt-meta{font-size:11px;color:var(--ink2)}
+.dot-form{background:var(--g)}.dot-sent{background:var(--n)}.dot-opened{background:var(--ok)}.dot-clicked{background:#0a5429}.dot-stage{background:#6b3fa0}.dot-call{background:#8C5A00}.dot-note{background:var(--ink2)}
+/* LEAD DETAIL PANEL */
+.lead-overlay{position:fixed;inset:0;background:rgba(13,28,63,.38);z-index:200;display:none}
+.lead-overlay.open{display:block}
+.lead-panel{position:fixed;top:0;right:0;width:480px;max-width:96vw;height:100vh;background:var(--surf);z-index:201;overflow-y:auto;box-shadow:-4px 0 36px rgba(13,28,63,.2);transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.lead-panel.open{transform:translateX(0)}
+.lp-head{background:linear-gradient(135deg,var(--n),#1a3a72);padding:28px 24px 22px;position:sticky;top:0;z-index:1}
+.lp-name{font-size:20px;font-weight:700;color:#fff;margin-bottom:8px;line-height:1.2}
+.lp-meta-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.lp-lemail{font-size:12px;color:rgba(255,255,255,.6)}
+.lp-close{position:absolute;top:18px;right:18px;background:rgba(255,255,255,.12);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:20px;cursor:pointer;line-height:30px;text-align:center;transition:.15s}
+.lp-close:hover{background:rgba(255,255,255,.25)}
+.lp-body{padding:20px 24px 40px}
+.lp-section{margin-bottom:18px}
+.lp-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);margin-bottom:6px}
+.lp-val{font-size:13px;color:var(--ink);line-height:1.7;background:var(--page);border-radius:8px;padding:11px 14px}
+.lp-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.lp-act-btns{display:flex;gap:10px;margin-bottom:20px}
+.lp-act-btn{flex:1;padding:11px;border-radius:9px;font-size:13px;font-weight:600;text-align:center;cursor:pointer;border:none;text-decoration:none;display:block}
+.lp-act-btn.primary{background:var(--n);color:#fff}
+.lp-act-btn.secondary{background:var(--page);color:var(--n);border:1.5px solid var(--bdr)}
+.lp-tl-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--bdr)}
+.lp-tl-item:last-child{border-bottom:none}
+.lp-tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.lp-tl-lbl{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.lp-tl-meta{font-size:11px;color:var(--ink2)}
+.lp-abschluss-btns{display:flex;gap:10px;margin-top:4px}
+.lp-won-btn{flex:1;background:#1a6b2e;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s}
+.lp-won-btn:hover{background:#155a26}
+.lp-lost-btn{flex:1;background:transparent;color:#9e1a2c;border:2px solid #9e1a2c;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s}
+.lp-lost-btn:hover{background:#fdf2f2}
+/* PIPELINE BOARD */
+.hot-zone{background:linear-gradient(135deg,#7a1020,#9e1a2c);border-radius:14px;padding:20px 22px 22px;margin-bottom:24px}
+.hot-zone-hd{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.65);margin-bottom:14px}
+.hot-zone-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.hot-zcard{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:15px 17px;cursor:pointer;transition:.15s}
+.hot-zcard:hover{background:rgba(255,255,255,.19)}
+.hot-zname{font-size:15px;font-weight:700;color:#fff;margin-bottom:2px}
+.hot-zco{font-size:11px;color:rgba(255,255,255,.5);margin-bottom:8px}
+.hot-zpain{font-size:12px;color:rgba(255,255,255,.88);line-height:1.55;font-style:italic;margin-bottom:9px;border-left:2.5px solid rgba(255,255,255,.28);padding-left:10px}
+.hot-zmeta{font-size:11px;color:rgba(255,255,255,.42);margin-bottom:10px}
+.hot-zbtn{display:inline-block;background:rgba(255,255,255,.9);color:#7a1020;font-size:11px;font-weight:700;padding:6px 14px;border-radius:20px;text-decoration:none;transition:.1s}
+.hot-zbtn:hover{background:#fff}
+.pipe-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;padding:0 2px}
+.pipe-stats{font-size:13px;color:var(--ink2)}
+.pipe-rbtn{background:var(--page);border:1.5px solid var(--bdr);color:var(--ink2);font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;cursor:pointer;transition:.15s}
+.pipe-rbtn:hover{border-color:var(--n);color:var(--n)}
+.pipe-track{margin-bottom:28px}
+.pipe-track-lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.pipe-track-lbl::after{content:'';flex:1;height:1.5px}
+.warm-lbl{color:#8C5A00}.warm-lbl::after{background:linear-gradient(90deg,rgba(184,146,74,.35),transparent)}
+.cold-lbl{color:#1a3f6b}.cold-lbl::after{background:linear-gradient(90deg,rgba(26,63,107,.2),transparent)}
+.abschluss-lbl{color:#1a5c2e}.abschluss-lbl::after{background:linear-gradient(90deg,rgba(26,92,46,.2),transparent)}
+.won-hd{background:#edf7f0;border-bottom:2px solid #1a6b2e}
+.lost-hd{background:#fdf2f2;border-bottom:2px solid #9e1a2c}
+.pipe-row{display:grid;gap:12px;overflow-x:auto}
+.pipe-row-2{grid-template-columns:repeat(2,1fr)}
+.pipe-row-3{grid-template-columns:repeat(3,1fr)}
+.pipe-row-4{grid-template-columns:repeat(4,1fr)}
+.pipe-row-5{grid-template-columns:repeat(5,1fr)}
+.pipe-date{font-size:10px;color:var(--ink2);background:transparent!important;padding:0!important}
+.pipe-col{background:var(--surf);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);min-width:0}
+.pipe-col-hd{padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+.warm-hd{background:#fff8ec;border-bottom:2px solid var(--g)}
+.cold-hd{background:#eef3fb;border-bottom:2px solid #7a9fd4}
+.pipe-col-lbl{font-size:11px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pipe-col-cnt{font-size:12px;font-weight:800;background:var(--page);color:var(--ink2);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:6px}
+.pipe-col-body{padding:8px;display:flex;flex-direction:column;gap:8px;min-height:72px}
+.pipe-card{background:var(--page);border-radius:9px;padding:12px 13px;cursor:pointer;transition:.15s;border:1.5px solid transparent}
+.pipe-card:hover{border-color:var(--g);background:#fffdf6}
+.pipe-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:4px}
+.pipe-name{font-size:13px;font-weight:700;color:var(--ink);line-height:1.2;flex:1}
+.pipe-co{font-size:11px;color:var(--ink2);margin-bottom:6px}
+.pipe-pain{font-size:11px;color:var(--ink);line-height:1.5;margin-bottom:8px;opacity:.7;font-style:italic;border-left:2px solid var(--bdr);padding-left:8px}
+.pipe-foot{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.pipe-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--surf);color:var(--ink2);white-space:nowrap}
+.pipe-day{color:var(--n);background:rgba(13,28,63,.07)}
+.pipe-mail{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--n);color:#fff;text-decoration:none;margin-left:auto;white-space:nowrap}
+.pipe-mail:hover{opacity:.85}
+.pipe-none{font-size:11px;color:var(--ink2);text-align:center;padding:20px 10px;opacity:.4}
+@media(max-width:1000px){.pipe-row-5{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:800px){.pipe-row-3{grid-template-columns:repeat(2,1fr)}.pipe-row-4{grid-template-columns:repeat(2,1fr)}.pipe-row-5{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.pipe-row-3,.pipe-row-4,.pipe-row-5{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -238,17 +368,34 @@ main{max-width:1200px;margin:0 auto;padding:40px 28px 80px}
     <div class="tab-bar">
       <button class="tab-btn active" onclick="switchTab('analytics')" id="tab-analytics">&#128202; Analytik</button>
       <button class="tab-btn" onclick="switchTab('chat')" id="tab-chat">&#128172; Chatbot</button>
+      <button class="tab-btn" onclick="switchTab('leads')" id="tab-leads">&#128203; CRM Pipeline</button>
     </div>
     <div id="content"><div class="loading">Daten werden geladen&hellip;</div></div>
     <div id="content-chat" style="display:none"><div class="loading">Chatbot-Daten werden geladen&hellip;</div></div>
+    <div id="leads-content" style="display:none"></div>
   </main>
   <div class="dash-foot">Sensibilis Analytics &mdash; nur zur internen Nutzung</div>
+</div>
+<div class="lead-overlay" id="lead-overlay" onclick="closeLeadPanel()"></div>
+<div class="lead-panel" id="lead-panel">
+  <div class="lp-head">
+    <button class="lp-close" onclick="closeLeadPanel()">&#215;</button>
+    <div class="lp-name" id="lp-name">&#8212;</div>
+    <div class="lp-meta-row">
+      <span id="lp-score" class="score-cold">COLD</span>
+      <span class="lp-lemail" id="lp-lemail">&#8212;</span>
+    </div>
+  </div>
+  <div class="lp-body" id="lp-body"></div>
 </div>
 <script>
 const N='#0D1C3F',G='#B8924A',C='#8C1A2A';
 let _pw='';
 const $=id=>document.getElementById(id);
 let curDays=30,curCompare=false;
+const SB_URL='https://qrpaeeglfpfywunvvgkq.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFycGFlZWdsZnBmeXd1bnZ2Z2txIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4OTQ3NDEsImV4cCI6MjA5ODQ3MDc0MX0.CsWL3SlhbaX9OHqaPx0KmTgHYg7hq63dRL_LYFDjK54';
+let _leadsCache=[],_tlLeads=[],_tlEvts=[];
 function doLogin(){const pw=$('pw').value.trim();if(!pw){showE('Bitte Passwort eingeben.');return;}_pw=pw;$('lerr').textContent='Wird geprüft…';load();}
 $('pw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 function doLogout(){_pw='';$('app').style.display='none';$('login').style.display='flex';$('pw').value='';}
@@ -257,12 +404,13 @@ function showE(m){$('lerr').textContent=m;}
 let curTab='analytics';
 function switchTab(t){
   curTab=t;
-  ['analytics','chat'].forEach(function(id){
+  ['analytics','chat','leads'].forEach(function(id){
     var btn=$('tab-'+id);if(btn)btn.classList.toggle('active',id===t);
-    var c=id==='analytics'?$('content'):$('content-chat');
+    var c=id==='analytics'?$('content'):id==='chat'?$('content-chat'):$('leads-content');
     if(c)c.style.display=id===t?'':'none';
   });
   if(t==='chat'&&_pw)loadChat();
+  if(t==='leads')loadLeads();
 }
 function setPeriod(d){
   curDays=d;
@@ -270,6 +418,7 @@ function setPeriod(d){
   $('p'+d)&&$('p'+d).classList.add('active');
   load();
   if(curTab==='chat'&&_pw)loadChat();
+  if(curTab==='leads')loadLeads();
 }
 function toggleCompare(){
   curCompare=!curCompare;
@@ -605,6 +754,284 @@ function renderChat(d){
     const canv=$('cch');
     if(canv)new Chart(canv,{type:'line',data:{labels:dL,datasets:[{data:dV,borderColor:C,borderWidth:2,backgroundColor:'rgba(140,26,42,.08)',fill:true,tension:0.4,pointRadius:dV.length<15?4:0,pointHoverRadius:6,pointBackgroundColor:G,pointBorderColor:C,pointBorderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},scales:{x:{grid:{color:'rgba(0,0,0,.05)'},ticks:{color:'#999',font:{size:10}},border:{display:false}},y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{color:'#999',font:{size:10}},border:{display:false},beginAtZero:true}}}});
   }
+}
+
+/* ===== CRM PIPELINE / LEADS ===== */
+function prodLabel(k){const m={'ki-pass':'KI Pass','content-planer':'Content Planer','beratung':'Beratung'};return m[k]||k||'—';}
+function mailLabel(m){return{w1:'Erstantwort',w2:'Kosten des Wartens',w3:'Letzte Einladung',c1:'Erstantwort',c2:'Das stille Problem',c3:'Die eigentliche Frage',c4:'Konkretes Bild',c5:'Abschluss'}[(m||'').toLowerCase()]||m||'—';}
+function leadName(l){const n=((l.vorname||'')+' '+(l.nachname||'')).trim();return n||l.email||'Unbekannt';}
+
+async function loadLeads(){
+  const el=$('leads-content');
+  if(!el)return;
+  el.innerHTML='<div class="loading">Leads werden geladen…</div>';
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/funnel_leads?select=*&order=created_at.desc',{
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Accept':'application/json'}
+    });
+    const leads=await r.json();
+    renderLeads(Array.isArray(leads)?leads:[]);
+  }catch(e){el.innerHTML='<div class="loading">Fehler beim Laden der Leads: '+e.message+'</div>';}
+}
+
+function renderLeads(leads){
+  _leadsCache=leads;
+  const el=$('leads-content');
+  if(!el)return;
+  const gewonnen=leads.filter(l=>l.abschluss==='gewonnen');
+  const verloren=leads.filter(l=>l.abschluss==='verloren');
+  const active=leads.filter(l=>!l.abschluss);
+  const hot=active.filter(l=>l.score==='hot');
+  const warm=active.filter(l=>l.score==='warm');
+  const cold=active.filter(l=>l.score==='cold');
+
+  function stg(l){
+    if(l.stage)return l.stage;
+    const d=Math.floor((Date.now()-new Date(l.created_at))/86400000);
+    if(l.score==='warm')return d<3?'w1':d<7?'w2':'w3';
+    return d<3?'c1':d<7?'c2':d<11?'c3':d<15?'c4':'c5';
+  }
+  function stgDate(l){
+    if(!l.stage_entered_at)return'';
+    return new Date(l.stage_entered_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+  }
+  function dSince(l){return Math.floor((Date.now()-new Date(l.created_at))/86400000);}
+
+  function pipeCard(l){
+    const idx=_leadsCache.indexOf(l);
+    const d=dSince(l);
+    const pain=l.herausforderung?(l.herausforderung.length>80?l.herausforderung.slice(0,80)+'…':l.herausforderung):'';
+    return`<div class="pipe-card" onclick="openLead(_leadsCache[${idx}])">
+      <div class="pipe-card-top">
+        <span class="pipe-name">${leadName(l)}</span>
+        <span class="score-${l.score||'cold'}" style="font-size:10px">${(l.score||'').toUpperCase()}</span>
+      </div>
+      ${l.unternehmen?`<div class="pipe-co">${l.unternehmen}</div>`:''}
+      ${pain?`<div class="pipe-pain">${pain}</div>`:''}
+      <div class="pipe-foot">
+        ${l.produkt?`<span class="pipe-tag">${prodLabel(l.produkt)}</span>`:''}
+        <span class="pipe-tag pipe-day">${d===0?'heute':d+'d'}</span>
+        ${stgDate(l)?`<span class="pipe-tag pipe-date">seit ${stgDate(l)}</span>`:''}
+        ${l.email?`<a class="pipe-mail" href="mailto:${l.email}" onclick="event.stopPropagation()">Mail ↗</a>`:''}
+      </div>
+    </div>`;
+  }
+
+  function pipeCol(title,stagLeads,hcls){
+    return`<div class="pipe-col">
+      <div class="pipe-col-hd ${hcls}">
+        <span class="pipe-col-lbl" title="${title}">${title}</span>
+        <span class="pipe-col-cnt">${stagLeads.length}</span>
+      </div>
+      <div class="pipe-col-body">${stagLeads.length>0?stagLeads.map(pipeCard).join(''):'<div class="pipe-none">Keine</div>'}</div>
+    </div>`;
+  }
+
+  const hotHtml=hot.length===0?'':
+  `<div class="hot-zone">
+    <div class="hot-zone-hd">Sofort handeln — ${hot.length} Hot Lead${hot.length>1?'s':''}</div>
+    <div class="hot-zone-cards">${hot.map(l=>{
+      const idx=_leadsCache.indexOf(l);
+      const d=dSince(l);
+      const pain=l.herausforderung?(l.herausforderung.length>100?l.herausforderung.slice(0,100)+'…':l.herausforderung):'';
+      return`<div class="hot-zcard" onclick="openLead(_leadsCache[${idx}])">
+        <div class="hot-zname">${leadName(l)}</div>
+        ${l.unternehmen?`<div class="hot-zco">${l.unternehmen}</div>`:''}
+        ${pain?`<div class="hot-zpain">${pain}</div>`:''}
+        <div class="hot-zmeta">${l.email||'—'}${l.telefon?' · '+l.telefon:''} · ${d===0?'heute':d+'d'} im Funnel</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${l.email?`<a class="hot-zbtn" href="mailto:${l.email}" onclick="event.stopPropagation()">Mail schreiben ↗</a>`:''}
+          ${l.telefon?`<a class="hot-zbtn" href="tel:${l.telefon}" onclick="event.stopPropagation()" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4)">Anrufen ↗</a>`:''}
+        </div>
+      </div>`;
+    }).join('')}</div>
+  </div>`;
+
+  const warmHtml=`<div class="pipe-track">
+    <div class="pipe-track-lbl warm-lbl">Warm-Spur</div>
+    <div class="pipe-row pipe-row-3">
+      ${pipeCol('Erstantwort',warm.filter(l=>stg(l)==='w1'),'warm-hd')}
+      ${pipeCol('Kosten des Wartens',warm.filter(l=>stg(l)==='w2'),'warm-hd')}
+      ${pipeCol('Letzte Einladung',warm.filter(l=>stg(l)==='w3'),'warm-hd')}
+    </div>
+  </div>`;
+
+  const coldHtml=`<div class="pipe-track">
+    <div class="pipe-track-lbl cold-lbl">Kalt-Spur</div>
+    <div class="pipe-row pipe-row-5">
+      ${pipeCol('Erstantwort',cold.filter(l=>stg(l)==='c1'),'cold-hd')}
+      ${pipeCol('Das stille Problem',cold.filter(l=>stg(l)==='c2'),'cold-hd')}
+      ${pipeCol('Die eigentliche Frage',cold.filter(l=>stg(l)==='c3'),'cold-hd')}
+      ${pipeCol('Konkretes Bild',cold.filter(l=>stg(l)==='c4'),'cold-hd')}
+      ${pipeCol('Abschluss',cold.filter(l=>stg(l)==='c5'),'cold-hd')}
+    </div>
+  </div>`;
+
+  const abschlussHtml=`<div class="pipe-track">
+    <div class="pipe-track-lbl abschluss-lbl">Abgeschlossen</div>
+    <div class="pipe-row pipe-row-2">
+      <div class="pipe-col"><div class="pipe-col-hd won-hd"><span class="pipe-col-lbl">Gewonnen</span><span class="pipe-col-cnt">${gewonnen.length}</span></div><div class="pipe-col-body">${gewonnen.length>0?gewonnen.map(pipeCard).join(''):'<div class="pipe-none">Keine</div>'}</div></div>
+      <div class="pipe-col"><div class="pipe-col-hd lost-hd"><span class="pipe-col-lbl">Nicht gewonnen</span><span class="pipe-col-cnt">${verloren.length}</span></div><div class="pipe-col-body">${verloren.length>0?verloren.map(pipeCard).join(''):'<div class="pipe-none">Keine</div>'}</div></div>
+    </div>
+  </div>`;
+
+  el.innerHTML=`
+  <div class="sec" style="margin-top:0">
+    <div class="sec-title"><span class="sec-icon">⏰</span> Aktionszentrale</div>
+    ${renderAktionszentrale(leads)}
+  </div>
+  ${hotHtml}
+  <div class="pipe-bar">
+    <div class="pipe-stats"><b>${active.length}</b> aktiv &nbsp;·&nbsp; <span style="color:var(--c)"><b>${hot.length}</b> Hot</span> &nbsp;·&nbsp; <span style="color:#8C5A00"><b>${warm.length}</b> Warm</span> &nbsp;·&nbsp; <span style="color:var(--info)"><b>${cold.length}</b> Kalt</span>${gewonnen.length+verloren.length>0?` &nbsp;·&nbsp; <span style="color:#1a6b2e"><b>${gewonnen.length}</b> Gewonnen</span> &nbsp;·&nbsp; <span style="color:var(--c)"><b>${verloren.length}</b> Nicht gew.</span>`:''}</div>
+    <button onclick="loadLeads()" class="pipe-rbtn">Aktualisieren</button>
+  </div>
+  ${leads.length===0?'<div class="empty-state" style="margin-top:60px"><div class="e-icon">📋</div><p>Noch keine Leads vorhanden.<br>Sobald das erste Formular abgesendet wird, erscheint es hier.</p></div>':''}
+  ${warmHtml}
+  ${coldHtml}
+  ${abschlussHtml}
+  <div id="tl-section" style="margin-top:32px"></div>`;
+
+  loadAndRenderTimeline(leads);
+}
+
+function renderAktionszentrale(leads){
+  const tom=new Date();tom.setHours(0,0,0,0);tom.setDate(tom.getDate()+1);
+  const dat=new Date(tom);dat.setDate(dat.getDate()+1);
+  const active=leads.filter(l=>l.next_action_at);
+  const heute=active.filter(l=>new Date(l.next_action_at)<tom);
+  const morgen=active.filter(l=>{const d=new Date(l.next_action_at);return d>=tom&&d<dat;});
+  const warten=active.filter(l=>new Date(l.next_action_at)>=dat);
+  function akCard(l){
+    const nm=leadName(l);
+    const idx=_leadsCache.indexOf(l);
+    const typ={call:'Anrufen',mail:'E-Mail senden',auto:'Automatisch',none:'Keine Aktion'}[l.next_action_type]||'Nachfassen';
+    const heraus=l.herausforderung?(l.herausforderung.length>65?l.herausforderung.slice(0,65)+'…':l.herausforderung):'';
+    return`<div class="ak-card" onclick="openLead(_leadsCache[${idx}])" style="cursor:pointer">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div class="ak-name">${nm}</div>
+        <span class="score-${l.score||'cold'}" style="font-size:10px">${(l.score||'—').toUpperCase()}</span>
+      </div>
+      ${heraus?`<div style="font-size:11px;color:var(--ink2);margin-bottom:7px;line-height:1.5">${heraus}</div>`:''}
+      <div class="ak-grund">${typ}${l.email?' · '+l.email:''}</div>
+      <div class="ak-btns"><a class="ak-btn call" href="tel:${l.telefon||''}">Anrufen</a><a class="ak-btn mail" href="mailto:${l.email||''}">Mail ↗</a></div>
+    </div>`;
+  }
+  function akCol(ls,cls,lbl){
+    return`<div class="ak-col ${cls}"><div class="ak-head">${lbl}<span style="margin-left:auto;font-size:14px;font-weight:800">${ls.length}</span></div><div class="ak-body">${ls.length>0?ls.map(akCard).join(''):'<div class="ak-empty">Nichts fällig</div>'}</div></div>`;
+  }
+  if(active.length===0)return`<div class="ak-grid">${akCol([],'heute','Heute')}${akCol([],'morgen','Morgen')}${akCol([],'warten','Kann warten')}</div><div style="font-size:12px;color:var(--ink2);padding:12px 0">Noch keine Aktionen geplant.</div>`;
+  return`<div class="ak-grid">${akCol(heute,'heute','Heute')}${akCol(morgen,'morgen','Morgen')}${akCol(warten,'warten','Kann warten')}</div>`;
+}
+
+async function loadAndRenderTimeline(leads){
+  _tlLeads=leads;
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/timeline_events?select=*&order=created_at.asc',{
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Accept':'application/json'}
+    });
+    const data=await r.json();
+    _tlEvts=Array.isArray(data)?data:[];
+  }catch(e){_tlEvts=[];}
+  renderTimeline(_tlLeads,_tlEvts,'all');
+}
+
+function renderTimeline(leads,events,filter){
+  const el=document.getElementById('tl-section');
+  if(!el)return;
+  const sent=events.filter(e=>e.type==='email_sent').length;
+  const opened=events.filter(e=>e.type==='email_opened').length;
+  const clicked=events.filter(e=>e.type==='email_clicked').length;
+  const daysArr=leads.map(l=>{
+    const evts=events.filter(e=>e.lead_id===l.id||e.contact_id===l.email);
+    if(evts.length<2)return 0;
+    return Math.ceil((new Date(evts[evts.length-1].created_at)-new Date(evts[0].created_at))/86400000);
+  });
+  const avg=daysArr.length>0?Math.round(daysArr.reduce((a,b)=>a+b,0)/daysArr.length):0;
+  const TL={form_submitted:'Formular ausgefüllt',email_sent:'E-Mail gesendet',email_opened:'E-Mail geöffnet',email_clicked:'Link geklickt',stage_changed:'Status geändert',call_made:'Anruf',manual_mail:'Manuelle Mail',note_added:'Notiz'};
+  const DC={form_submitted:'dot-form',email_sent:'dot-sent',email_opened:'dot-opened',email_clicked:'dot-clicked',stage_changed:'dot-stage',call_made:'dot-call',manual_mail:'dot-sent',note_added:'dot-note'};
+  const mailT=['email_sent','email_opened','email_clicked','manual_mail'];
+  const statT=['form_submitted','stage_changed'];
+  const blocks=leads.map(l=>{
+    const nm=((l.vorname||'')+' '+(l.nachname||'')).trim()||l.email||'Unbekannt';
+    let evts=events.filter(e=>e.lead_id===l.id||e.contact_id===l.email);
+    if(filter==='mail')evts=evts.filter(e=>mailT.includes(e.type));
+    if(filter==='status')evts=evts.filter(e=>statT.includes(e.type));
+    const items=evts.length>0?evts.map(e=>{
+      const dt=new Date(e.created_at).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+      const meta=e.metadata?Object.values(e.metadata).filter(v=>typeof v==='string').join(' · '):'';
+      return`<div class="tl-evt"><div class="tl-dot ${DC[e.type]||'dot-note'}"></div><div><div class="tl-evt-lbl">${TL[e.type]||e.type}${meta?` <span style="font-weight:400;font-size:11px;color:var(--ink2)">— ${meta}</span>`:''}</div><div class="tl-evt-meta">${dt}</div></div></div>`;
+    }).join(''):`<div style="font-size:12px;color:var(--ink2);opacity:.5;padding:4px 0">Noch keine Ereignisse aufgezeichnet</div>`;
+    return`<div class="tl-lead-block"><div class="tl-lead-hd"><span>${nm}</span><span class="score-${l.score||'cold'}">${(l.score||'—').toUpperCase()}</span></div><div class="tl-track">${items}</div></div>`;
+  }).join('');
+  el.innerHTML=`
+  <div class="sec-title" style="margin-top:32px"><span class="sec-icon">📅</span> E-Mail-Verlauf & Timeline</div>
+  <div class="tl-kpis">
+    <div class="tl-kpi"><div class="tl-kpi-val">${sent}</div><div class="tl-kpi-lbl">Mails gesendet</div></div>
+    <div class="tl-kpi"><div class="tl-kpi-val">${opened}</div><div class="tl-kpi-lbl">Öffnungen</div></div>
+    <div class="tl-kpi"><div class="tl-kpi-val">${clicked}</div><div class="tl-kpi-lbl">Klicks</div></div>
+    <div class="tl-kpi"><div class="tl-kpi-val">${avg}</div><div class="tl-kpi-lbl">Ø Tage aktiv</div></div>
+  </div>
+  <div class="tl-filter">
+    <button class="tl-fbtn ${filter==='all'?'active':''}" onclick="setTlFilter('all')">Alle</button>
+    <button class="tl-fbtn ${filter==='mail'?'active':''}" onclick="setTlFilter('mail')">Nur Mails</button>
+    <button class="tl-fbtn ${filter==='status'?'active':''}" onclick="setTlFilter('status')">Nur Status</button>
+  </div>
+  ${leads.length>0?blocks:'<div class="empty-state"><div class="e-icon">📅</div><p>Noch keine Leads vorhanden.</p></div>'}`;
+}
+
+function setTlFilter(f){renderTimeline(_tlLeads,_tlEvts,f);}
+
+function openLead(l){
+  if(!l)return;
+  document.getElementById('lp-name').textContent=leadName(l);
+  document.getElementById('lp-lemail').textContent=l.email||'Keine E-Mail';
+  const sc=document.getElementById('lp-score');
+  sc.className='score-'+(l.score||'cold');
+  sc.textContent=(l.score||'—').toUpperCase();
+  const evts=_tlEvts.filter(e=>e.contact_id===l.email||(l.id&&e.lead_id===l.id));
+  const TL={form_submitted:'Formular ausgefüllt',email_sent:'E-Mail gesendet',email_opened:'E-Mail geöffnet',email_clicked:'Link geklickt',stage_changed:'Status geändert',call_made:'Anruf',manual_mail:'Manuelle Mail',note_added:'Notiz'};
+  const DC={form_submitted:'var(--g)',email_sent:'var(--n)',email_opened:'var(--ok)',email_clicked:'#0a5429',stage_changed:'#6b3fa0',call_made:'#8C5A00',manual_mail:'var(--n)',note_added:'var(--ink2)'};
+  const tlHtml=evts.length>0?evts.map(e=>{
+    const dt=new Date(e.created_at).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const meta=e.metadata?Object.values(e.metadata).filter(v=>typeof v==='string').join(' · '):'';
+    return`<div class="lp-tl-item"><div class="lp-tl-dot" style="background:${DC[e.type]||'var(--ink2)'}"></div><div><div class="lp-tl-lbl">${TL[e.type]||e.type}${meta?` <span style="font-weight:400;color:var(--ink2)">— ${meta}</span>`:''}</div><div class="lp-tl-meta">${dt}</div></div></div>`;
+  }).join(''):`<div style="font-size:12px;color:var(--ink2);padding:4px 0">Noch keine Ereignisse aufgezeichnet</div>`;
+  const dSince=Math.floor((Date.now()-new Date(l.created_at))/86400000);
+  const eingang=new Date(l.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const s=[];
+  s.push(`<div class="lp-section"><div class="lp-lbl">Kontakt</div><div class="lp-val">${l.email||'—'}${l.telefon?'<br>'+l.telefon:''}</div></div>`);
+  s.push(`<div class="lp-2col"><div class="lp-section"><div class="lp-lbl">Mail-Stufe</div><div class="lp-val" style="font-weight:700;color:var(--n)">${mailLabel(l.stage||l.empfohlene_mail)}</div></div><div class="lp-section"><div class="lp-lbl">Im Funnel seit</div><div class="lp-val">${dSince===0?'Heute':dSince+' Tage'} (${eingang})</div></div></div>`);
+  if(l.herausforderung)s.push(`<div class="lp-section"><div class="lp-lbl">Schmerzpunkt</div><div class="lp-val" style="border-left:3px solid var(--c);background:#fdf2f2">${l.herausforderung}</div></div>`);
+  if(l.zusammenfassung)s.push(`<div class="lp-section"><div class="lp-lbl">KI-Einschätzung</div><div class="lp-val">${l.zusammenfassung}</div></div>`);
+  if(l.unternehmen||l.produkt)s.push(`<div class="lp-2col">${l.unternehmen?`<div class="lp-section"><div class="lp-lbl">Unternehmen</div><div class="lp-val">${l.unternehmen}</div></div>`:''}${l.produkt?`<div class="lp-section"><div class="lp-lbl">Interesse</div><div class="lp-val">${prodLabel(l.produkt)}</div></div>`:''}</div>`);
+  if(l.zeitplan)s.push(`<div class="lp-section"><div class="lp-lbl">Zeitplan / Dringlichkeit</div><div class="lp-val">${l.zeitplan}</div></div>`);
+  s.push(`<div class="lp-section"><div class="lp-lbl">Verlauf</div>${tlHtml}</div>`);
+  const callBtn=l.telefon?`<a class="lp-act-btn secondary" href="tel:${l.telefon}">Anrufen ↗</a>`:'<span class="lp-act-btn secondary" style="opacity:.4;cursor:default">Kein Telefon</span>';
+  const abschlussBlock=l.abschluss
+    ?`<div class="lp-section"><div class="lp-lbl">Status</div><div class="lp-val" style="font-weight:700;color:${l.abschluss==='gewonnen'?'#1a6b2e':'#9e1a2c'}">${l.abschluss==='gewonnen'?'Gewonnen':'Nicht gewonnen'}</div></div>`
+    :`<div class="lp-section"><div class="lp-lbl">Abschluss</div><div class="lp-abschluss-btns"><button class="lp-won-btn" onclick="markAbschluss('${l.id}','gewonnen')">Gewonnen</button><button class="lp-lost-btn" onclick="markAbschluss('${l.id}','verloren')">Nicht gewonnen</button></div></div>`;
+  document.getElementById('lp-body').innerHTML=`<div class="lp-act-btns">${l.email?`<a class="lp-act-btn primary" href="mailto:${l.email}">Mail schreiben ↗</a>`:''}${callBtn}</div>${s.join('')}${abschlussBlock}`;
+  document.getElementById('lead-panel').classList.add('open');
+  document.getElementById('lead-overlay').classList.add('open');
+}
+
+function closeLeadPanel(){
+  document.getElementById('lead-panel').classList.remove('open');
+  document.getElementById('lead-overlay').classList.remove('open');
+}
+
+async function markAbschluss(id,value){
+  const label=value==='gewonnen'?'Gewonnen':'Nicht gewonnen';
+  if(!confirm('Lead als "'+label+'" markieren?'))return;
+  try{
+    await fetch(SB_URL+'/rest/v1/funnel_leads?id=eq.'+id,{
+      method:'PATCH',
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({abschluss:value})
+    });
+  }catch(e){alert('Fehler beim Speichern: '+e.message);return;}
+  closeLeadPanel();
+  loadLeads();
 }
 </script>
 </body>
