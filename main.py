@@ -763,6 +763,8 @@ function renderChat(d){
 
 /* ===== CRM PIPELINE / LEADS ===== */
 function prodLabel(k){const m={'ki-pass':'KI Pass','content-planer':'Content Planer','beratung':'Beratung'};return m[k]||k||'—';}
+function leadValue(l){const p={'ki-pass':59,'content-planer':490,'beratung':1200};return p[l.produkt]||500;}
+function fmtEur(n){return n.toLocaleString('de-DE')+' €';}
 function mailLabel(m){return{w1:'Erstantwort',w2:'Kosten des Wartens',w3:'Letzte Einladung',c1:'Erstantwort',c2:'Das stille Problem',c3:'Die eigentliche Frage',c4:'Konkretes Bild',c5:'Abschluss'}[(m||'').toLowerCase()]||m||'—';}
 function leadName(l){const n=((l.vorname||'')+' '+(l.nachname||'')).trim();return n||l.email||'Unbekannt';}
 
@@ -862,8 +864,10 @@ function renderLeads(leads){
     }).join('')}</div>
   </div>`;
 
+  const warmVal=warm.reduce((s,l)=>s+leadValue(l),0);
+  const coldVal=cold.reduce((s,l)=>s+leadValue(l),0);
   const warmHtml=`<div class="pipe-track" style="background:linear-gradient(160deg,rgba(196,154,58,.1) 0%,rgba(196,154,58,.04) 40%,transparent 100%);border:1.5px solid rgba(196,154,58,.2)">
-    <div class="pipe-track-lbl warm-lbl">&#x1F525; Warm-Spur</div>
+    <div class="pipe-track-lbl warm-lbl">&#x1F525; Warm-Spur <span style="font-weight:400;font-size:11px;letter-spacing:0;text-transform:none;opacity:.8">${warm.length} Leads &nbsp;·&nbsp; ${fmtEur(warmVal)}</span></div>
     <div class="pipe-row pipe-row-3">
       ${pipeCol('Erstantwort',warm.filter(l=>stg(l)==='w1'),'warm-hd')}
       ${pipeCol('Kosten des Wartens',warm.filter(l=>stg(l)==='w2'),'warm-hd')}
@@ -872,7 +876,7 @@ function renderLeads(leads){
   </div>`;
 
   const coldHtml=`<div class="pipe-track" style="background:linear-gradient(160deg,rgba(13,28,63,.08) 0%,rgba(13,28,63,.03) 40%,transparent 100%);border:1.5px solid rgba(74,127,193,.2)">
-    <div class="pipe-track-lbl cold-lbl">&#x2744;&#xFE0F; Kalt-Spur</div>
+    <div class="pipe-track-lbl cold-lbl">&#x2744;&#xFE0F; Kalt-Spur <span style="font-weight:400;font-size:11px;letter-spacing:0;text-transform:none;opacity:.8">${cold.length} Leads &nbsp;·&nbsp; ${fmtEur(coldVal)}</span></div>
     <div class="pipe-row pipe-row-5">
       ${pipeCol('Erstantwort',cold.filter(l=>stg(l)==='c1'),'cold-hd')}
       ${pipeCol('Das stille Problem',cold.filter(l=>stg(l)==='c2'),'cold-hd')}
@@ -897,7 +901,7 @@ function renderLeads(leads){
   </div>
   ${hotHtml}
   <div class="pipe-bar">
-    <div class="pipe-stats"><b>${active.length}</b> aktiv &nbsp;·&nbsp; <span style="color:var(--c)"><b>${hot.length}</b> Hot</span> &nbsp;·&nbsp; <span style="color:#8C5A00"><b>${warm.length}</b> Warm</span> &nbsp;·&nbsp; <span style="color:var(--info)"><b>${cold.length}</b> Kalt</span>${gewonnen.length+verloren.length>0?` &nbsp;·&nbsp; <span style="color:#1a6b2e"><b>${gewonnen.length}</b> Gewonnen</span> &nbsp;·&nbsp; <span style="color:var(--c)"><b>${verloren.length}</b> Nicht gew.</span>`:''}</div>
+    <div class="pipe-stats"><b>${active.length}</b> aktiv &nbsp;·&nbsp; <span style="color:var(--c)"><b>${hot.length}</b> Hot</span> &nbsp;·&nbsp; <span style="color:#8C5A00"><b>${warm.length}</b> Warm</span> &nbsp;·&nbsp; <span style="color:var(--info)"><b>${cold.length}</b> Kalt</span>${gewonnen.length+verloren.length>0?` &nbsp;·&nbsp; <span style="color:#1a6b2e"><b>${gewonnen.length}</b> Gewonnen</span> &nbsp;·&nbsp; <span style="color:var(--c)"><b>${verloren.length}</b> Nicht gew.</span>`:''} &nbsp;·&nbsp; <span style="color:#1a5c2e;font-weight:700">&#128176; Pipeline: ${fmtEur(active.reduce((s,l)=>s+leadValue(l),0))}</span></div>
     <button onclick="loadLeads()" class="pipe-rbtn">Aktualisieren</button>
   </div>
   ${leads.length===0?'<div class="empty-state" style="margin-top:60px"><div class="e-icon">📋</div><p>Noch keine Leads vorhanden.<br>Sobald das erste Formular abgesendet wird, erscheint es hier.</p></div>':''}
