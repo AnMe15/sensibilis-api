@@ -786,7 +786,6 @@ function renderLeads(leads){
   const cold=active.filter(l=>l.score==='cold');
 
   function stg(l){
-    if(l.stage)return l.stage;
     const d=Math.floor((Date.now()-new Date(l.created_at))/86400000);
     if(l.score==='warm')return d<3?'w1':d<7?'w2':'w3';
     return d<3?'c1':d<7?'c2':d<11?'c3':d<15?'c4':'c5';
@@ -1231,7 +1230,6 @@ async def track(request: Request):
         sb.table("sensibilis_clicks").insert({
             "label": data.get("label", ""),
             "page": data.get("page", ""),
-            "session_id": data.get("session_id", ""),
             "ts": data.get("ts"),
         }).execute()
     elif typ == "timing":
