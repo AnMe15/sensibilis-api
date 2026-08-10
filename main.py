@@ -397,6 +397,7 @@ main{max-width:1200px;margin:0 auto;padding:40px 28px 80px}
 const N='#0D1C3F',G='#B8924A',C='#8C1A2A';
 let _pw='';
 const $=id=>document.getElementById(id);
+const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 let curDays=30,curCompare=false;
 let _leadsCache=[],_tlLeads=[],_tlEvts=[];
 function doLogin(){const pw=$('pw').value.trim();if(!pw){showE('Bitte Passwort eingeben.');return;}_pw=pw;$('lerr').textContent='Wird geprüft…';load();}
@@ -650,10 +651,10 @@ function seoSection(seo){
 }
 
 function recCard(r){return`<div class="rec r-${r.t}"><div class="rec-icon">${r.icon}</div><div class="rec-body"><div class="rec-type">${r.t==='warn'?'Handlungsbedarf':r.t==='ok'?'Positiv':'Info'}</div><h4>${r.title}</h4><p>${r.text}</p></div></div>`;}
-function pN(id){const m={home:'Startseite',beratung:'Beratung',preise:'Preise',zukunft:'KI & Zukunft',faq:'FAQ',kontakt:'Kontakt',blog:'Blog',kipass:'KI Pass',contentplaner:'Content Planer',webcheck:'Web Check',dms:'DMS',tools:'Tools',prozesse:'Prozesse',impressum:'Impressum',datenschutz:'Datenschutz',agb:'AGB',glossar:'Glossar',checkliste:'Schnellcheck'};return m[id]||id;}
-function srcLabel(s){const m={direkt:'Direkt / Lesezeichen',google:'Google',social:'Social Media',email:'E-Mail',referral:'Andere Website'};return m[s]||s;}
+function pN(id){const m={home:'Startseite',beratung:'Beratung',preise:'Preise',zukunft:'KI & Zukunft',faq:'FAQ',kontakt:'Kontakt',blog:'Blog',kipass:'KI Pass',contentplaner:'Content Planer',webcheck:'Web Check',dms:'DMS',tools:'Tools',prozesse:'Prozesse',impressum:'Impressum',datenschutz:'Datenschutz',agb:'AGB',glossar:'Glossar',checkliste:'Schnellcheck'};return m[id]||esc(id);}
+function srcLabel(s){const m={direkt:'Direkt / Lesezeichen',google:'Google',social:'Social Media',email:'E-Mail',referral:'Andere Website'};return m[s]||esc(s);}
 function fmtTime(s){if(!s)return'—';if(s<60)return s+'s';return Math.floor(s/60)+'m '+(s%60)+'s';}
-function eRow(r){const dt=new Date(r.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'});return`<tr><td>${r.name||'—'}</td><td>${r.email}</td><td>${r.source?`<span class="pill">${r.source}</span>`:'—'}</td><td>${dt}</td></tr>`;}
+function eRow(r){const dt=new Date(r.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'});return`<tr><td>${r.name?esc(r.name):'—'}</td><td>${esc(r.email)}</td><td>${r.source?`<span class="pill">${esc(r.source)}</span>`:'—'}</td><td>${dt}</td></tr>`;}
 
 async function loadChat(){
   const el=$('content-chat');
@@ -704,7 +705,7 @@ function renderChat(d){
   <div class="sec">
     <div class="sec-title"><span class="sec-icon">🔥</span> Top-Themen — Was interessiert die Besucher?</div>
     <div class="card">
-      ${topics.length>0?`<div class="clist">${topics.map((t,i)=>`<div class="citem"><div class="crank">${i+1}</div><div class="cname">${t[0]}</div><div class="cbar-wrap"><div class="cbar"><div class="cbar-fill" style="width:${Math.round(t[1]/maxT*100)}%"></div></div></div><div class="ccount">${t[1]}</div></div>`).join('')}</div>`:`<div class="empty-state"><div class="e-icon">💬</div><p>Noch keine Chat-Daten.<br>Sobald jemand den Chatbot nutzt, erscheinen hier die Themen.</p></div>`}
+      ${topics.length>0?`<div class="clist">${topics.map((t,i)=>`<div class="citem"><div class="crank">${i+1}</div><div class="cname">${esc(t[0])}</div><div class="cbar-wrap"><div class="cbar"><div class="cbar-fill" style="width:${Math.round(t[1]/maxT*100)}%"></div></div></div><div class="ccount">${t[1]}</div></div>`).join('')}</div>`:`<div class="empty-state"><div class="e-icon">💬</div><p>Noch keine Chat-Daten.<br>Sobald jemand den Chatbot nutzt, erscheinen hier die Themen.</p></div>`}
     </div>
   </div>
 
@@ -715,7 +716,7 @@ function renderChat(d){
     <div class="card" style="padding:0;overflow:hidden">
       <table class="perf-table">
         <thead><tr><th>Datum/Zeit</th><th>Frage</th></tr></thead>
-        <tbody>${unanswered.map(r=>`<tr><td style="white-space:nowrap">${new Date(r.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td><td>${(r.user_message||'').replace(/</g,'&lt;')}</td></tr>`).join('')}</tbody>
+        <tbody>${unanswered.map(r=>`<tr><td style="white-space:nowrap">${new Date(r.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td><td>${esc(r.user_message)}</td></tr>`).join('')}</tbody>
       </table>
     </div>
   </div>`:''}
@@ -727,21 +728,22 @@ function renderChat(d){
       ${convs.map(([sid,ms])=>{
         const last=ms[ms.length-1];
         const dt=new Date(last.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-        const preview=(ms[0].user_message||'').replace(/</g,'&lt;').slice(0,60);
+        const previewRaw=(ms[0].user_message||'').slice(0,60);
+        const preview=esc(previewRaw);
         const hasLead=ms.some(m=>m.led_to_contact);
         return`<details style="background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden">
           <summary style="padding:14px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;list-style:none;font-size:13px;user-select:none">
             <span style="color:var(--ink2);white-space:nowrap;flex-shrink:0">${dt}</span>
-            <span style="flex:1;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"${preview}${preview.length>=60?'…':''}"</span>
+            <span style="flex:1;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"${preview}${previewRaw.length>=60?'…':''}"</span>
             <span style="color:var(--ink2);white-space:nowrap;flex-shrink:0">${ms.length} Nachricht${ms.length>1?'en':''}</span>
             ${hasLead?'<span class="perf-badge perf-gut" style="flex-shrink:0">Lead</span>':''}
           </summary>
           <div style="border-top:1px solid var(--bdr);padding:16px 20px;display:flex;flex-direction:column;gap:12px">
             ${ms.map(m=>`<div>
               <div style="font-size:10px;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Besucher</div>
-              <div style="font-size:13px;color:var(--ink);background:rgba(140,26,42,.06);padding:8px 12px;border-radius:6px;line-height:1.5">${(m.user_message||'').replace(/</g,'&lt;')}</div>
-              <div style="font-size:10px;font-weight:700;color:var(--n);text-transform:uppercase;letter-spacing:.08em;margin:8px 0 4px">Chatbot${m.matched_topic?' · <span style="font-weight:400;text-transform:none;letter-spacing:0">'+m.matched_topic+'</span>':''}</div>
-              <div style="font-size:13px;color:var(--ink2);background:var(--page);padding:8px 12px;border-radius:6px;line-height:1.5">${(m.bot_reply||'').replace(/</g,'&lt;').slice(0,220)}${(m.bot_reply||'').length>220?'…':''}</div>
+              <div style="font-size:13px;color:var(--ink);background:rgba(140,26,42,.06);padding:8px 12px;border-radius:6px;line-height:1.5">${esc(m.user_message)}</div>
+              <div style="font-size:10px;font-weight:700;color:var(--n);text-transform:uppercase;letter-spacing:.08em;margin:8px 0 4px">Chatbot${m.matched_topic?' · <span style="font-weight:400;text-transform:none;letter-spacing:0">'+esc(m.matched_topic)+'</span>':''}</div>
+              <div style="font-size:13px;color:var(--ink2);background:var(--page);padding:8px 12px;border-radius:6px;line-height:1.5">${esc((m.bot_reply||'').slice(0,220))}${(m.bot_reply||'').length>220?'…':''}</div>
             </div>`).join('<div style="height:1px;background:var(--bdr)"></div>')}
           </div>
         </details>`;
@@ -816,17 +818,17 @@ function renderLeads(leads){
     const pain=l.herausforderung?(l.herausforderung.length>80?l.herausforderung.slice(0,80)+'…':l.herausforderung):'';
     return`<div class="pipe-card${rot?' rotting':''}" onclick="openLead(_leadsCache[${idx}])">
       <div class="pipe-card-top">
-        <span class="pipe-name">${leadName(l)}</span>
-        <span class="score-${l.score||'cold'}" style="font-size:10px">${(l.score||'').toUpperCase()}</span>
+        <span class="pipe-name">${esc(leadName(l))}</span>
+        <span class="score-${esc(l.score||'cold')}" style="font-size:10px">${esc((l.score||'').toUpperCase())}</span>
       </div>
       ${rot?`<span class="rot-badge">&#9888; Kein Kontakt seit ${lastContact(l)}</span>`:''}
-      ${l.unternehmen?`<div class="pipe-co">${l.unternehmen}</div>`:''}
-      ${pain?`<div class="pipe-pain">${pain}</div>`:''}
+      ${l.unternehmen?`<div class="pipe-co">${esc(l.unternehmen)}</div>`:''}
+      ${pain?`<div class="pipe-pain">${esc(pain)}</div>`:''}
       <div class="pipe-foot">
-        ${l.produkt?`<span class="pipe-tag">${prodLabel(l.produkt)}</span>`:''}
+        ${l.produkt?`<span class="pipe-tag">${esc(prodLabel(l.produkt))}</span>`:''}
         <span class="pipe-tag pipe-day">${d===0?'heute':d+'d im Funnel'}</span>
         <span class="last-contact">Letzter Kontakt: ${lastContact(l)}</span>
-        ${l.email?`<a class="pipe-mail" href="mailto:${l.email}" onclick="event.stopPropagation()">Mail ↗</a>`:''}
+        ${l.email?`<a class="pipe-mail" href="mailto:${esc(l.email)}" onclick="event.stopPropagation()">Mail ↗</a>`:''}
       </div>
     </div>`;
   }
@@ -849,13 +851,13 @@ function renderLeads(leads){
       const d=dSince(l);
       const pain=l.herausforderung?(l.herausforderung.length>100?l.herausforderung.slice(0,100)+'…':l.herausforderung):'';
       return`<div class="hot-zcard" onclick="openLead(_leadsCache[${idx}])">
-        <div class="hot-zname">${leadName(l)}</div>
-        ${l.unternehmen?`<div class="hot-zco">${l.unternehmen}</div>`:''}
-        ${pain?`<div class="hot-zpain">${pain}</div>`:''}
-        <div class="hot-zmeta">${l.email||'—'}${l.telefon?' · '+l.telefon:''} · ${d===0?'heute':d+'d'} im Funnel</div>
+        <div class="hot-zname">${esc(leadName(l))}</div>
+        ${l.unternehmen?`<div class="hot-zco">${esc(l.unternehmen)}</div>`:''}
+        ${pain?`<div class="hot-zpain">${esc(pain)}</div>`:''}
+        <div class="hot-zmeta">${l.email?esc(l.email):'—'}${l.telefon?' · '+esc(l.telefon):''} · ${d===0?'heute':d+'d'} im Funnel</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          ${l.email?`<a class="hot-zbtn" href="mailto:${l.email}" onclick="event.stopPropagation()">Mail schreiben ↗</a>`:''}
-          ${l.telefon?`<a class="hot-zbtn" href="tel:${l.telefon}" onclick="event.stopPropagation()" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4)">Anrufen ↗</a>`:''}
+          ${l.email?`<a class="hot-zbtn" href="mailto:${esc(l.email)}" onclick="event.stopPropagation()">Mail schreiben ↗</a>`:''}
+          ${l.telefon?`<a class="hot-zbtn" href="tel:${esc(l.telefon)}" onclick="event.stopPropagation()" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4)">Anrufen ↗</a>`:''}
         </div>
       </div>`;
     }).join('')}</div>
@@ -924,12 +926,12 @@ function renderAktionszentrale(leads){
     const heraus=l.herausforderung?(l.herausforderung.length>65?l.herausforderung.slice(0,65)+'…':l.herausforderung):'';
     return`<div class="ak-card" onclick="openLead(_leadsCache[${idx}])" style="cursor:pointer">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <div class="ak-name">${nm}</div>
-        <span class="score-${l.score||'cold'}" style="font-size:10px">${(l.score||'—').toUpperCase()}</span>
+        <div class="ak-name">${esc(nm)}</div>
+        <span class="score-${esc(l.score||'cold')}" style="font-size:10px">${esc((l.score||'—').toUpperCase())}</span>
       </div>
-      ${heraus?`<div style="font-size:11px;color:var(--ink2);margin-bottom:7px;line-height:1.5">${heraus}</div>`:''}
-      <div class="ak-grund">${typ}${l.email?' · '+l.email:''}</div>
-      <div class="ak-btns"><a class="ak-btn call" href="tel:${l.telefon||''}">Anrufen</a><a class="ak-btn mail" href="mailto:${l.email||''}">Mail ↗</a></div>
+      ${heraus?`<div style="font-size:11px;color:var(--ink2);margin-bottom:7px;line-height:1.5">${esc(heraus)}</div>`:''}
+      <div class="ak-grund">${typ}${l.email?' · '+esc(l.email):''}</div>
+      <div class="ak-btns"><a class="ak-btn call" href="tel:${esc(l.telefon||'')}">Anrufen</a><a class="ak-btn mail" href="mailto:${esc(l.email||'')}">Mail ↗</a></div>
     </div>`;
   }
   function akCol(ls,cls,lbl){
@@ -973,9 +975,9 @@ function renderTimeline(leads,events,filter){
     const items=evts.length>0?evts.map(e=>{
       const dt=new Date(e.created_at).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
       const meta=e.metadata?Object.values(e.metadata).filter(v=>typeof v==='string').join(' · '):'';
-      return`<div class="tl-evt"><div class="tl-dot ${DC[e.type]||'dot-note'}"></div><div><div class="tl-evt-lbl">${TL[e.type]||e.type}${meta?` <span style="font-weight:400;font-size:11px;color:var(--ink2)">— ${meta}</span>`:''}</div><div class="tl-evt-meta">${dt}</div></div></div>`;
+      return`<div class="tl-evt"><div class="tl-dot ${DC[e.type]||'dot-note'}"></div><div><div class="tl-evt-lbl">${TL[e.type]||esc(e.type)}${meta?` <span style="font-weight:400;font-size:11px;color:var(--ink2)">— ${esc(meta)}</span>`:''}</div><div class="tl-evt-meta">${dt}</div></div></div>`;
     }).join(''):`<div style="font-size:12px;color:var(--ink2);opacity:.5;padding:4px 0">Noch keine Ereignisse aufgezeichnet</div>`;
-    return`<div class="tl-lead-block"><div class="tl-lead-hd"><span>${nm}</span><span class="score-${l.score||'cold'}">${(l.score||'—').toUpperCase()}</span></div><div class="tl-track">${items}</div></div>`;
+    return`<div class="tl-lead-block"><div class="tl-lead-hd"><span>${esc(nm)}</span><span class="score-${esc(l.score||'cold')}">${esc((l.score||'—').toUpperCase())}</span></div><div class="tl-track">${items}</div></div>`;
   }).join('');
   el.innerHTML=`
   <div class="sec-title" style="margin-top:32px"><span class="sec-icon">📅</span> E-Mail-Verlauf & Timeline</div>
@@ -1008,23 +1010,23 @@ function openLead(l){
   const tlHtml=evts.length>0?evts.map(e=>{
     const dt=new Date(e.created_at).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
     const meta=e.metadata?Object.values(e.metadata).filter(v=>typeof v==='string').join(' · '):'';
-    return`<div class="lp-tl-item"><div class="lp-tl-dot" style="background:${DC[e.type]||'var(--ink2)'}"></div><div><div class="lp-tl-lbl">${TL[e.type]||e.type}${meta?` <span style="font-weight:400;color:var(--ink2)">— ${meta}</span>`:''}</div><div class="lp-tl-meta">${dt}</div></div></div>`;
+    return`<div class="lp-tl-item"><div class="lp-tl-dot" style="background:${DC[e.type]||'var(--ink2)'}"></div><div><div class="lp-tl-lbl">${TL[e.type]||esc(e.type)}${meta?` <span style="font-weight:400;color:var(--ink2)">— ${esc(meta)}</span>`:''}</div><div class="lp-tl-meta">${dt}</div></div></div>`;
   }).join(''):`<div style="font-size:12px;color:var(--ink2);padding:4px 0">Noch keine Ereignisse aufgezeichnet</div>`;
   const dSince=Math.floor((Date.now()-new Date(l.created_at))/86400000);
   const eingang=new Date(l.created_at).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
   const s=[];
-  s.push(`<div class="lp-section"><div class="lp-lbl">Kontakt</div><div class="lp-val">${l.email||'—'}${l.telefon?'<br>'+l.telefon:''}</div></div>`);
-  s.push(`<div class="lp-2col"><div class="lp-section"><div class="lp-lbl">Mail-Stufe</div><div class="lp-val" style="font-weight:700;color:var(--n)">${mailLabel(l.stage||l.empfohlene_mail)}</div></div><div class="lp-section"><div class="lp-lbl">Im Funnel seit</div><div class="lp-val">${dSince===0?'Heute':dSince+' Tage'} (${eingang})</div></div></div>`);
-  if(l.herausforderung)s.push(`<div class="lp-section"><div class="lp-lbl">Schmerzpunkt</div><div class="lp-val" style="border-left:3px solid var(--c);background:#fdf2f2">${l.herausforderung}</div></div>`);
-  if(l.zusammenfassung)s.push(`<div class="lp-section"><div class="lp-lbl">KI-Einschätzung</div><div class="lp-val">${l.zusammenfassung}</div></div>`);
-  if(l.unternehmen||l.produkt)s.push(`<div class="lp-2col">${l.unternehmen?`<div class="lp-section"><div class="lp-lbl">Unternehmen</div><div class="lp-val">${l.unternehmen}</div></div>`:''}${l.produkt?`<div class="lp-section"><div class="lp-lbl">Interesse</div><div class="lp-val">${prodLabel(l.produkt)}</div></div>`:''}</div>`);
-  if(l.zeitplan)s.push(`<div class="lp-section"><div class="lp-lbl">Zeitplan / Dringlichkeit</div><div class="lp-val">${l.zeitplan}</div></div>`);
+  s.push(`<div class="lp-section"><div class="lp-lbl">Kontakt</div><div class="lp-val">${l.email?esc(l.email):'—'}${l.telefon?'<br>'+esc(l.telefon):''}</div></div>`);
+  s.push(`<div class="lp-2col"><div class="lp-section"><div class="lp-lbl">Mail-Stufe</div><div class="lp-val" style="font-weight:700;color:var(--n)">${esc(mailLabel(l.stage||l.empfohlene_mail))}</div></div><div class="lp-section"><div class="lp-lbl">Im Funnel seit</div><div class="lp-val">${dSince===0?'Heute':dSince+' Tage'} (${eingang})</div></div></div>`);
+  if(l.herausforderung)s.push(`<div class="lp-section"><div class="lp-lbl">Schmerzpunkt</div><div class="lp-val" style="border-left:3px solid var(--c);background:#fdf2f2">${esc(l.herausforderung)}</div></div>`);
+  if(l.zusammenfassung)s.push(`<div class="lp-section"><div class="lp-lbl">KI-Einschätzung</div><div class="lp-val">${esc(l.zusammenfassung)}</div></div>`);
+  if(l.unternehmen||l.produkt)s.push(`<div class="lp-2col">${l.unternehmen?`<div class="lp-section"><div class="lp-lbl">Unternehmen</div><div class="lp-val">${esc(l.unternehmen)}</div></div>`:''}${l.produkt?`<div class="lp-section"><div class="lp-lbl">Interesse</div><div class="lp-val">${esc(prodLabel(l.produkt))}</div></div>`:''}</div>`);
+  if(l.zeitplan)s.push(`<div class="lp-section"><div class="lp-lbl">Zeitplan / Dringlichkeit</div><div class="lp-val">${esc(l.zeitplan)}</div></div>`);
   s.push(`<div class="lp-section"><div class="lp-lbl">Verlauf</div>${tlHtml}</div>`);
-  const callBtn=l.telefon?`<a class="lp-act-btn secondary" href="tel:${l.telefon}">Anrufen ↗</a>`:'<span class="lp-act-btn secondary" style="opacity:.4;cursor:default">Kein Telefon</span>';
+  const callBtn=l.telefon?`<a class="lp-act-btn secondary" href="tel:${esc(l.telefon)}">Anrufen ↗</a>`:'<span class="lp-act-btn secondary" style="opacity:.4;cursor:default">Kein Telefon</span>';
   const abschlussBlock=l.abschluss
     ?`<div class="lp-section"><div class="lp-lbl">Status</div><div class="lp-val" style="font-weight:700;color:${l.abschluss==='gewonnen'?'#1a6b2e':'#9e1a2c'}">${l.abschluss==='gewonnen'?'Gewonnen':'Nicht gewonnen'}</div></div>`
-    :`<div class="lp-section"><div class="lp-lbl">Abschluss</div><div class="lp-abschluss-btns"><button class="lp-won-btn" onclick="markAbschluss('${l.id}','gewonnen')">Gewonnen</button><button class="lp-lost-btn" onclick="markAbschluss('${l.id}','verloren')">Nicht gewonnen</button></div></div>`;
-  document.getElementById('lp-body').innerHTML=`<div class="lp-act-btns">${l.email?`<a class="lp-act-btn primary" href="mailto:${l.email}">Mail schreiben ↗</a>`:''}${callBtn}</div>${s.join('')}${abschlussBlock}`;
+    :`<div class="lp-section"><div class="lp-lbl">Abschluss</div><div class="lp-abschluss-btns"><button class="lp-won-btn" onclick="markAbschluss('${esc(l.id)}','gewonnen')">Gewonnen</button><button class="lp-lost-btn" onclick="markAbschluss('${esc(l.id)}','verloren')">Nicht gewonnen</button></div></div>`;
+  document.getElementById('lp-body').innerHTML=`<div class="lp-act-btns">${l.email?`<a class="lp-act-btn primary" href="mailto:${esc(l.email)}">Mail schreiben ↗</a>`:''}${callBtn}</div>${s.join('')}${abschlussBlock}`;
   document.getElementById('lead-panel').classList.add('open');
   document.getElementById('lead-overlay').classList.add('open');
 }
@@ -1269,8 +1271,8 @@ async def save_email(request: Request):
     try:
         sb.table("sensibilis_emails").insert({
             "email": email,
-            "name": data.get("name", ""),
-            "source": data.get("source", ""),
+            "name": (data.get("name") or "")[:120],
+            "source": (data.get("source") or "")[:60],
         }).execute()
     except Exception:
         pass  # UNIQUE-Constraint: E-Mail bereits vorhanden
@@ -1437,7 +1439,7 @@ async def save_chat(request: Request):
             "session_id": data.get("session_id", ""),
             "user_message": (data.get("user_message") or "")[:500],
             "bot_reply": (data.get("bot_reply") or "")[:1000],
-            "matched_topic": data.get("matched_topic"),
+            "matched_topic": ((data.get("matched_topic") or "")[:100] or None),
             "led_to_contact": bool(data.get("led_to_contact", False)),
         }).execute()
     )
