@@ -1222,10 +1222,6 @@ def dashboard_page():
     from fastapi.responses import HTMLResponse as HR
     return HR(content=DASHBOARD_HTML, headers={"Cache-Control": "no-store"})
 
-@app.get("/debug")
-def debug_info():
-    return {"v": "005", "key_len": len(SUPABASE_KEY), "key_ok": SUPABASE_KEY.startswith("eyJ"), "url_ok": "supabase.co" in SUPABASE_URL}
-
 @app.post("/track")
 async def track(request: Request):
     try:
@@ -1293,7 +1289,8 @@ def dashboard_data(token: str = Query(default=""), days: int = Query(default=30)
     try:
         return _dashboard_data_inner(days, compare)
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"{type(exc).__name__}: {exc}\n{traceback.format_exc()}")
+        traceback.print_exc()                      # vollstaendig, aber nur ins Render-Log
+        raise HTTPException(status_code=500, detail=f"{type(exc).__name__}: {exc}")
 
 def _dashboard_data_inner(days: int, compare: bool):
     now  = datetime.now(timezone.utc)
@@ -1480,3 +1477,33 @@ def dashboard_chat(token: str = Query(default=""), days: int = Query(default=30)
         "unanswered": unanswered[:20],
         "log": rows[:100],
     }
+
+
+# ── CRM: Leads und Timeline serverseitig, passwortgeschuetzt ──────────
+def _pruefe(token: str):
+    if not secrets.compare_digest(token.encode(), DASHBOARD_PASSWORD.encode()):
+        raise HTTPException(status_code=401, detail="Nicht autorisiert")
+
+
+@app.get("/dashboard/leads")
+def dashboard_leads(token: str = Query(default="")):
+    _pruefe(token)
+    return sb.table("funnel_leads").select("*").order("created_at", desc=True).execute().data
+
+
+@app.get("/dashboard/timeline")
+def dashboard_timeline(token: str = Query(default="")):
+    _pruefe(token)
+    return sb.table("timeline_events").select("*").order("created_at").execute().data
+
+
+@app.post("/dashboard/lead/abschluss")
+async def dashboard_lead_abschluss(request: Request, token: str = Query(default="")):
+    _pruefe(token)
+    daten   = await request.json()
+    lead_id = (daten.get("id") or "").strip()
+    wert    = daten.get("abschluss")
+    if not lead_id or wert not in ("gewonnen", "verloren"):
+        raise HTTPException(status_code=400, detail="Ungueltige Angaben")
+    sb.table("funnel_leads").update({"abschluss": wert}).eq("id", lead_id).execute()
+    return {"ok": True}
