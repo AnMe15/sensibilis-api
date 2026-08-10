@@ -398,8 +398,6 @@ const N='#0D1C3F',G='#B8924A',C='#8C1A2A';
 let _pw='';
 const $=id=>document.getElementById(id);
 let curDays=30,curCompare=false;
-const SB_URL='https://qrpaeeglfpfywunvvgkq.supabase.co';
-const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFycGFlZWdsZnBmeXd1bnZ2Z2txIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4OTQ3NDEsImV4cCI6MjA5ODQ3MDc0MX0.CsWL3SlhbaX9OHqaPx0KmTgHYg7hq63dRL_LYFDjK54';
 let _leadsCache=[],_tlLeads=[],_tlEvts=[];
 function doLogin(){const pw=$('pw').value.trim();if(!pw){showE('Bitte Passwort eingeben.');return;}_pw=pw;$('lerr').textContent='Wird geprüft…';load();}
 $('pw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
@@ -415,7 +413,7 @@ function switchTab(t){
     if(c)c.style.display=id===t?'':'none';
   });
   if(t==='chat'&&_pw)loadChat();
-  if(t==='leads')loadLeads();
+  if(t==='leads'&&_pw)loadLeads();
 }
 function setPeriod(d){
   curDays=d;
@@ -773,9 +771,8 @@ async function loadLeads(){
   if(!el)return;
   el.innerHTML='<div class="loading">Leads werden geladen…</div>';
   try{
-    const r=await fetch(SB_URL+'/rest/v1/funnel_leads?select=*&order=created_at.desc',{
-      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Accept':'application/json'}
-    });
+    const r=await fetch('/dashboard/leads?token='+encodeURIComponent(_pw));
+    if(!r.ok)throw new Error('HTTP '+r.status);
     const leads=await r.json();
     renderLeads(Array.isArray(leads)?leads:[]);
   }catch(e){el.innerHTML='<div class="loading">Fehler beim Laden der Leads: '+e.message+'</div>';}
@@ -945,9 +942,7 @@ function renderAktionszentrale(leads){
 async function loadAndRenderTimeline(leads){
   _tlLeads=leads;
   try{
-    const r=await fetch(SB_URL+'/rest/v1/timeline_events?select=*&order=created_at.asc',{
-      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Accept':'application/json'}
-    });
+    const r=await fetch('/dashboard/timeline?token='+encodeURIComponent(_pw));
     const data=await r.json();
     _tlEvts=Array.isArray(data)?data:[];
   }catch(e){_tlEvts=[];}
@@ -1043,11 +1038,12 @@ async function markAbschluss(id,value){
   const label=value==='gewonnen'?'Gewonnen':'Nicht gewonnen';
   if(!confirm('Lead als "'+label+'" markieren?'))return;
   try{
-    await fetch(SB_URL+'/rest/v1/funnel_leads?id=eq.'+id,{
-      method:'PATCH',
-      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify({abschluss:value})
+    const r=await fetch('/dashboard/lead/abschluss?token='+encodeURIComponent(_pw),{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({id:id,abschluss:value})
     });
+    if(!r.ok)throw new Error('HTTP '+r.status);
   }catch(e){alert('Fehler beim Speichern: '+e.message);return;}
   closeLeadPanel();
   loadLeads();
