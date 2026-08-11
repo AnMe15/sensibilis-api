@@ -1,4 +1,4 @@
-import os, json, re
+import os, json, re, time
 from datetime import datetime, timezone, timedelta
 from fastapi import FastAPI, Request, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,10 +17,49 @@ sb = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://anme15.github.io", "http://localhost"],
+    allow_origins=["https://anme15.github.io"],
     allow_methods=["POST", "GET", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# ── Passwortpruefung per Header + Bremse gegen Rateversuche ──────────
+# Das Passwort steht nicht mehr in der Adresszeile, sondern im Header
+# X-Dashboard-Token. Nach _SPERRE_AB Fehlversuchen je IP innerhalb von
+# _ZEITFENSTER Sekunden wird nur noch abgewiesen.
+_FEHLVERSUCHE: dict = {}
+_SPERRE_AB   = 5
+_ZEITFENSTER = 900
+
+
+def _ip(request: Request) -> str:
+    # WICHTIG: den LETZTEN Eintrag nehmen, nicht den ersten.
+    # Der Client kann X-Forwarded-For selbst mitschicken und bei jedem
+    # Versuch faelschen; Renders Proxy haengt die echte IP hinten an.
+    # Der erste Eintrag ist also angreifergesteuert, der letzte nicht.
+    fwd = request.headers.get("X-Forwarded-For", "")
+    if fwd:
+        teile = [t.strip() for t in fwd.split(",") if t.strip()]
+        if teile:
+            return teile[-1]
+    return (request.client.host if request.client else "?") or "?"
+
+
+def _pruefe(request: Request):
+    ip    = _ip(request)
+    jetzt = time.time()
+    liste = [t for t in _FEHLVERSUCHE.get(ip, []) if jetzt - t < _ZEITFENSTER]
+    _FEHLVERSUCHE[ip] = liste
+
+    if len(liste) >= _SPERRE_AB:
+        raise HTTPException(status_code=429, detail="Zu viele Fehlversuche. Bitte 15 Minuten warten.")
+
+    token = request.headers.get("X-Dashboard-Token", "")
+    if not secrets.compare_digest(token.encode(), DASHBOARD_PASSWORD.encode()):
+        liste.append(jetzt)
+        _FEHLVERSUCHE[ip] = liste
+        raise HTTPException(status_code=401, detail="Nicht autorisiert")
+
+    _FEHLVERSUCHE.pop(ip, None)
 
 DASHBOARD_HTML = """<!DOCTYPE html>
 <html lang="de">
@@ -434,9 +473,10 @@ function toggleCompare(){
 async function load(){
   try{
     const [r, rs] = await Promise.all([
-      fetch('/dashboard/data?token='+encodeURIComponent(_pw)+'&days='+curDays+'&compare='+(curCompare?'true':'false')),
-      fetch('/dashboard/seo?token='+encodeURIComponent(_pw))
+      fetch('/dashboard/data?days='+curDays+'&compare='+(curCompare?'true':'false'),{headers:{'X-Dashboard-Token':_pw}}),
+      fetch('/dashboard/seo',{headers:{'X-Dashboard-Token':_pw}})
     ]);
+    if(r.status===429){showE('Zu viele Fehlversuche. Bitte 15 Minuten warten.');_pw='';return;}
     if(r.status===401){showE('Falsches Passwort.');_pw='';return;}
     if(!r.ok){const t=await r.json().catch(()=>({}));throw new Error('HTTP '+r.status+': '+(t.detail||'?'));}
     const d=await r.json();
@@ -660,7 +700,7 @@ async function loadChat(){
   const el=$('content-chat');
   if(el)el.innerHTML='<div class="loading">Chatbot-Daten werden geladen…</div>';
   try{
-    const r=await fetch('/dashboard/chat?token='+encodeURIComponent(_pw)+'&days='+curDays);
+    const r=await fetch('/dashboard/chat?days='+curDays,{headers:{'X-Dashboard-Token':_pw}});
     if(!r.ok)throw new Error('HTTP '+r.status);
     const d=await r.json();
     renderChat(d);
@@ -773,7 +813,7 @@ async function loadLeads(){
   if(!el)return;
   el.innerHTML='<div class="loading">Leads werden geladen…</div>';
   try{
-    const r=await fetch('/dashboard/leads?token='+encodeURIComponent(_pw));
+    const r=await fetch('/dashboard/leads',{headers:{'X-Dashboard-Token':_pw}});
     if(!r.ok)throw new Error('HTTP '+r.status);
     const leads=await r.json();
     renderLeads(Array.isArray(leads)?leads:[]);
@@ -944,7 +984,7 @@ function renderAktionszentrale(leads){
 async function loadAndRenderTimeline(leads){
   _tlLeads=leads;
   try{
-    const r=await fetch('/dashboard/timeline?token='+encodeURIComponent(_pw));
+    const r=await fetch('/dashboard/timeline',{headers:{'X-Dashboard-Token':_pw}});
     const data=await r.json();
     _tlEvts=Array.isArray(data)?data:[];
   }catch(e){_tlEvts=[];}
@@ -1040,9 +1080,9 @@ async function markAbschluss(id,value){
   const label=value==='gewonnen'?'Gewonnen':'Nicht gewonnen';
   if(!confirm('Lead als "'+label+'" markieren?'))return;
   try{
-    const r=await fetch('/dashboard/lead/abschluss?token='+encodeURIComponent(_pw),{
+    const r=await fetch('/dashboard/lead/abschluss',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','X-Dashboard-Token':_pw},
       body:JSON.stringify({id:id,abschluss:value})
     });
     if(!r.ok)throw new Error('HTTP '+r.status);
@@ -1061,9 +1101,8 @@ LLMS_URL   = "https://anme15.github.io/Sensibilis-Ki/llms.txt"
 AI_BOTS = ["GPTBot","ClaudeBot","PerplexityBot","anthropic-ai","GoogleBot","Googlebot-Extended","cohere-ai","YouBot","BingBot"]
 
 @app.get("/dashboard/seo")
-async def dashboard_seo(token: str = Query(default="")):
-    if not secrets.compare_digest(token.encode(), DASHBOARD_PASSWORD.encode()):
-        raise HTTPException(status_code=401, detail="Nicht autorisiert")
+async def dashboard_seo(request: Request):
+    _pruefe(request)
 
     checks = []
 
@@ -1220,70 +1259,10 @@ def dashboard_page():
     from fastapi.responses import HTMLResponse as HR
     return HR(content=DASHBOARD_HTML, headers={"Cache-Control": "no-store"})
 
-@app.post("/track")
-async def track(request: Request):
-    try:
-        data = await request.json()
-    except Exception:
-        raise HTTPException(status_code=400, detail="Kein JSON")
-
-    typ = data.get("type")
-    if typ == "pageview":
-        sb.table("sensibilis_pageviews").insert({
-            "page": data.get("page", ""),
-            "session_id": data.get("session_id", ""),
-            "device": data.get("device", ""),
-            "is_new": data.get("is_new", True),
-            "referrer": data.get("referrer", ""),
-            "ref_source": data.get("ref_source", "direkt"),
-            "lang": data.get("lang", ""),
-            "width": data.get("w"),
-            "ts": data.get("ts"),
-        }).execute()
-    elif typ == "click":
-        sb.table("sensibilis_clicks").insert({
-            "label": data.get("label", ""),
-            "page": data.get("page", ""),
-            "ts": data.get("ts"),
-        }).execute()
-    elif typ == "timing":
-        sb.table("sensibilis_timing").insert({
-            "session_id": data.get("session_id", ""),
-            "page": data.get("page", ""),
-            "time_on_page": data.get("time_on_page", 0),
-            "scroll_depth": data.get("scroll_depth", 0),
-            "is_exit": data.get("is_exit", False),
-        }).execute()
-
-    return {"ok": True}
-
-@app.post("/email")
-async def save_email(request: Request):
-    try:
-        data = await request.json()
-    except Exception:
-        raise HTTPException(status_code=400, detail="Kein JSON")
-
-    email = data.get("email", "").strip().lower()
-    if not email or "@" not in email:
-        raise HTTPException(status_code=422, detail="Ungültige E-Mail")
-
-    try:
-        sb.table("sensibilis_emails").insert({
-            "email": email,
-            "name": (data.get("name") or "")[:120],
-            "source": (data.get("source") or "")[:60],
-        }).execute()
-    except Exception:
-        pass  # UNIQUE-Constraint: E-Mail bereits vorhanden
-
-    return {"ok": True}
-
 @app.get("/dashboard/data")
-def dashboard_data(token: str = Query(default=""), days: int = Query(default=30), compare: bool = Query(default=False)):
+def dashboard_data(request: Request, days: int = Query(default=30), compare: bool = Query(default=False)):
     import traceback
-    if not secrets.compare_digest(token.encode(), DASHBOARD_PASSWORD.encode()):
-        raise HTTPException(status_code=401, detail="Nicht autorisiert")
+    _pruefe(request)
     try:
         return _dashboard_data_inner(days, compare)
     except Exception as exc:
@@ -1427,29 +1406,9 @@ def _dashboard_data_inner(days: int, compare: bool):
     }
 
 
-@app.post("/chat")
-async def save_chat(request: Request):
-    import asyncio
-    try:
-        data = await request.json()
-    except Exception:
-        raise HTTPException(status_code=400, detail="Kein JSON")
-    await asyncio.to_thread(
-        lambda: sb.table("sensibilis_chats").insert({
-            "session_id": data.get("session_id", ""),
-            "user_message": (data.get("user_message") or "")[:500],
-            "bot_reply": (data.get("bot_reply") or "")[:1000],
-            "matched_topic": ((data.get("matched_topic") or "")[:100] or None),
-            "led_to_contact": bool(data.get("led_to_contact", False)),
-        }).execute()
-    )
-    return {"ok": True}
-
-
 @app.get("/dashboard/chat")
-def dashboard_chat(token: str = Query(default=""), days: int = Query(default=30)):
-    if not secrets.compare_digest(token.encode(), DASHBOARD_PASSWORD.encode()):
-        raise HTTPException(status_code=401, detail="Nicht autorisiert")
+def dashboard_chat(request: Request, days: int = Query(default=30)):
+    _pruefe(request)
     now = datetime.now(timezone.utc)
     since = (now - timedelta(days=days)).isoformat()
     rows = sb.table("sensibilis_chats").select("*").gte("created_at", since).order("created_at", desc=True).limit(500).execute().data
@@ -1478,26 +1437,21 @@ def dashboard_chat(token: str = Query(default=""), days: int = Query(default=30)
 
 
 # ── CRM: Leads und Timeline serverseitig, passwortgeschuetzt ──────────
-def _pruefe(token: str):
-    if not secrets.compare_digest(token.encode(), DASHBOARD_PASSWORD.encode()):
-        raise HTTPException(status_code=401, detail="Nicht autorisiert")
-
-
 @app.get("/dashboard/leads")
-def dashboard_leads(token: str = Query(default="")):
-    _pruefe(token)
+def dashboard_leads(request: Request):
+    _pruefe(request)
     return sb.table("funnel_leads").select("*").order("created_at", desc=True).execute().data
 
 
 @app.get("/dashboard/timeline")
-def dashboard_timeline(token: str = Query(default="")):
-    _pruefe(token)
+def dashboard_timeline(request: Request):
+    _pruefe(request)
     return sb.table("timeline_events").select("*").order("created_at").execute().data
 
 
 @app.post("/dashboard/lead/abschluss")
-async def dashboard_lead_abschluss(request: Request, token: str = Query(default="")):
-    _pruefe(token)
+async def dashboard_lead_abschluss(request: Request):
+    _pruefe(request)
     daten   = await request.json()
     lead_id = (daten.get("id") or "").strip()
     wert    = daten.get("abschluss")
