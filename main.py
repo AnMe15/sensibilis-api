@@ -1459,3 +1459,117 @@ async def dashboard_lead_abschluss(request: Request):
         raise HTTPException(status_code=400, detail="Ungueltige Angaben")
     sb.table("funnel_leads").update({"abschluss": wert}).eq("id", lead_id).execute()
     return {"ok": True}
+
+
+# ══ Oeffentliche Schreib-Endpunkte fuer die Website ═══════════════════
+# Die Website schreibt Tracking/Chat/Leads kuenftig hierueber, statt mit
+# dem oeffentlichen Schluessel direkt nach Supabase. Geschrieben wird mit
+# service_role (sb). Danach kann anon das Schreibrecht entzogen werden.
+_ERLAUBTE_ORIGIN = "https://anme15.github.io"
+
+# Bremse gegen Fluten: grosszuegig, damit normales Surfen (viele
+# Tracking-Ereignisse je Sitzung) nicht ausgebremst wird.
+_WRITE_TREFFER: dict = {}
+_WRITE_MAX      = 240   # Schreibvorgaenge
+_WRITE_FENSTER  = 60    # je IP und 60 Sekunden
+
+
+def _oeffentlich(request: Request):
+    origin = request.headers.get("Origin", "")
+    if origin != _ERLAUBTE_ORIGIN:
+        raise HTTPException(status_code=403, detail="Herkunft nicht erlaubt")
+    ip    = _ip(request)
+    jetzt = time.time()
+    liste = [t for t in _WRITE_TREFFER.get(ip, []) if jetzt - t < _WRITE_FENSTER]
+    if len(liste) >= _WRITE_MAX:
+        raise HTTPException(status_code=429, detail="Zu viele Anfragen")
+    liste.append(jetzt)
+    _WRITE_TREFFER[ip] = liste
+
+
+def _txt(wert, laenge: int) -> str:
+    return (str(wert) if wert is not None else "")[:laenge]
+
+
+def _zahl(wert):
+    try:
+        return int(wert)
+    except (TypeError, ValueError):
+        return None
+
+
+@app.post("/api/track")
+async def api_track(request: Request):
+    _oeffentlich(request)
+    try:
+        d = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Kein JSON")
+
+    typ = d.get("type")
+    if typ == "pageview":
+        sb.table("sensibilis_pageviews").insert({
+            "page":       _txt(d.get("page"), 80),
+            "session_id": _txt(d.get("session_id"), 40),
+            "device":     _txt(d.get("device"), 20),
+            "is_new":     bool(d.get("is_new", True)),
+            "referrer":   _txt(d.get("referrer"), 300),
+            "ref_source": _txt(d.get("ref_source"), 20) or "direkt",
+            "lang":       _txt(d.get("lang"), 20),
+            "width":      _zahl(d.get("width")),
+            "ts":         _zahl(d.get("ts")),
+        }).execute()
+    elif typ == "timing":
+        sb.table("sensibilis_timing").insert({
+            "session_id":   _txt(d.get("session_id"), 40),
+            "page":         _txt(d.get("page"), 80),
+            "time_on_page": _zahl(d.get("time_on_page")) or 0,
+            "scroll_depth": _zahl(d.get("scroll_depth")) or 0,
+            "is_exit":      bool(d.get("is_exit", False)),
+        }).execute()
+    elif typ == "click":
+        sb.table("sensibilis_clicks").insert({
+            "label": _txt(d.get("label"), 80),
+            "page":  _txt(d.get("page"), 80),
+            "ts":    _zahl(d.get("ts")),
+        }).execute()
+    else:
+        raise HTTPException(status_code=400, detail="Unbekannter Typ")
+    return {"ok": True}
+
+
+@app.post("/api/chat")
+async def api_chat(request: Request):
+    _oeffentlich(request)
+    try:
+        d = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Kein JSON")
+    sb.table("sensibilis_chats").insert({
+        "session_id":     _txt(d.get("session_id"), 40),
+        "user_message":   _txt(d.get("user_message"), 500),
+        "bot_reply":      _txt(d.get("bot_reply"), 1000),
+        "matched_topic":  (_txt(d.get("matched_topic"), 100) or None),
+        "led_to_contact": bool(d.get("led_to_contact", False)),
+    }).execute()
+    return {"ok": True}
+
+
+@app.post("/api/lead")
+async def api_lead(request: Request):
+    _oeffentlich(request)
+    try:
+        d = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Kein JSON")
+    email = _txt(d.get("email"), 120).strip().lower()
+    if not email or "@" not in email:
+        raise HTTPException(status_code=422, detail="Ungueltige E-Mail")
+    sb.table("sensibilis_leads").insert({
+        "name":              _txt(d.get("name"), 120),
+        "email":             email,
+        "session_id":        _txt(d.get("session_id"), 40) or "anon",
+        "source":            _txt(d.get("source"), 60) or "chat",
+        "newsletter_consent": bool(d.get("newsletter_consent", False)),
+    }).execute()
+    return {"ok": True}
